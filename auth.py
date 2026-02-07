@@ -99,6 +99,17 @@ def login_post():
         return redirect(url_for('auth.login'))
     
     login_user(user, remember=remember)
+
+    # Redirect based on role
+    role = user.role.value if hasattr(user.role, 'value') else str(user.role)
+    if role == 'admin':
+        return redirect(url_for('admin.dashboard'))
+    elif role == 'analyst':
+        return redirect(url_for('analyst.dashboard'))
+    elif role == 'student':
+        return redirect(url_for('student.dashboard'))
+    elif role == 'instructor':
+        return redirect(url_for('instructor.dashboard'))
     return redirect(url_for('main.profile'))
 
 @auth.route('/logout')
