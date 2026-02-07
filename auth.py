@@ -23,6 +23,9 @@ def signup_post():
     user_by_email = User.query.filter_by(email=email).first()
     user_by_username = User.query.filter_by(username=username).first()
 
+    if len(password) < 6:
+        flash('Password must be at least 6 characters long.')
+        return redirect(url_for('auth.signup'))
     if user_by_email:
         flash('Email address already registered.')
         return redirect(url_for('auth.signup'))
