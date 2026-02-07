@@ -62,7 +62,7 @@ CREATE TABLE Courses (
 -- 9. Topics
 CREATE TABLE Topics (
     topic_id SERIAL PRIMARY KEY,
-    topic_name VARCHAR(100) NOT NULL,
+    topic_name VARCHAR(100) NOT NULL
     -- duration_hours INT
 );
 
@@ -150,66 +150,66 @@ CREATE TABLE CourseOnlineBooks (
 -- specific database users (e.g., 'application_user_admin', 'application_user_analyst')
 -- that your application connects with.
 
-CREATE ROLE app_admin;
-CREATE ROLE app_analyst;
+-- CREATE ROLE app_admin;
+-- CREATE ROLE app_analyst;
 
 -- 2. Grant Permissions to app_admin
 -- app_admin has full control over all tables. This role is intended for users
 -- or application processes that require full read, write, and schema modification
 -- capabilities.
 
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO app_admin;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO app_admin;
+-- GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO app_admin;
+-- GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO app_admin;
 
 -- 3. Grant Permissions to app_analyst
 -- app_analyst has read-only access (SELECT) to all tables. This role is intended
 -- for users or application processes that only need to view data,
 -- without the ability to modify it.
 
-GRANT SELECT ON TABLE Users TO app_analyst;
-GRANT SELECT ON TABLE Admins TO app_analyst;
-GRANT SELECT ON TABLE Analysts TO app_analyst;
-GRANT SELECT ON TABLE Students TO app_analyst;
-GRANT SELECT ON TABLE Instructors TO app_analyst;
-GRANT SELECT ON TABLE Universities TO app_analyst;
-GRANT SELECT ON TABLE Courses TO app_analyst;
-GRANT SELECT ON TABLE Topics TO app_analyst;
-GRANT SELECT ON TABLE Course_Topics TO app_analyst;
-GRANT SELECT ON TABLE TextBooks TO app_analyst;
-GRANT SELECT ON TABLE Course_TextBooks TO app_analyst;
-GRANT SELECT ON TABLE Enrollments TO app_analyst;
-GRANT SELECT ON TABLE Course_Instructors TO app_analyst;
-GRANT SELECT ON TABLE CourseVideos TO app_analyst;
-GRANT SELECT ON TABLE CourseNotes TO app_analyst;
-GRANT SELECT ON TABLE CourseOnlineBooks TO app_analyst;
+-- GRANT SELECT ON TABLE Users TO app_analyst;
+-- GRANT SELECT ON TABLE Admins TO app_analyst;
+-- GRANT SELECT ON TABLE Analysts TO app_analyst;
+-- GRANT SELECT ON TABLE Students TO app_analyst;
+-- GRANT SELECT ON TABLE Instructors TO app_analyst;
+-- GRANT SELECT ON TABLE Universities TO app_analyst;
+-- GRANT SELECT ON TABLE Courses TO app_analyst;
+-- GRANT SELECT ON TABLE Topics TO app_analyst;
+-- GRANT SELECT ON TABLE Course_Topics TO app_analyst;
+-- GRANT SELECT ON TABLE TextBooks TO app_analyst;
+-- GRANT SELECT ON TABLE Course_TextBooks TO app_analyst;
+-- GRANT SELECT ON TABLE Enrollments TO app_analyst;
+-- GRANT SELECT ON TABLE Course_Instructors TO app_analyst;
+-- GRANT SELECT ON TABLE CourseVideos TO app_analyst;
+-- GRANT SELECT ON TABLE CourseNotes TO app_analyst;
+-- GRANT SELECT ON TABLE CourseOnlineBooks TO app_analyst;
 
--- 4. Grant Permissions to app_student
--- app_student has read-only access to course information and can insert into enrollments.
-CREATE ROLE app_student;
-GRANT SELECT ON TABLE Courses TO app_student;
-GRANT SELECT ON TABLE Topics TO app_student;
-GRANT SELECT ON TABLE Universities TO app_student;
-GRANT SELECT ON TABLE TextBooks TO app_student;
-GRANT SELECT ON TABLE Course_Topics TO app_student;
-GRANT SELECT ON TABLE Course_TextBooks TO app_student;
-GRANT SELECT ON TABLE CourseVideos TO app_student;
-GRANT SELECT ON TABLE CourseNotes TO app_student;
-GRANT SELECT ON TABLE CourseOnlineBooks TO app_student;
-GRANT INSERT ON TABLE Enrollments TO app_student; -- For students to register themselves
+-- -- 4. Grant Permissions to app_student
+-- -- app_student has read-only access to course information and can insert into enrollments.
+-- CREATE ROLE app_student;
+-- GRANT SELECT ON TABLE Courses TO app_student;
+-- GRANT SELECT ON TABLE Topics TO app_student;
+-- GRANT SELECT ON TABLE Universities TO app_student;
+-- GRANT SELECT ON TABLE TextBooks TO app_student;
+-- GRANT SELECT ON TABLE Course_Topics TO app_student;
+-- GRANT SELECT ON TABLE Course_TextBooks TO app_student;
+-- GRANT SELECT ON TABLE CourseVideos TO app_student;
+-- GRANT SELECT ON TABLE CourseNotes TO app_student;
+-- GRANT SELECT ON TABLE CourseOnlineBooks TO app_student;
+-- GRANT INSERT ON TABLE Enrollments TO app_student; -- For students to register themselves
 
--- 5. Grant Permissions to app_instructor
--- app_instructor has read access to relevant course info and can manage course content.
-CREATE ROLE app_instructor;
-GRANT SELECT ON TABLE Courses TO app_instructor;
-GRANT SELECT ON TABLE Topics TO app_instructor;
-GRANT SELECT ON TABLE Universities TO app_instructor;
-GRANT SELECT ON TABLE TextBooks TO app_instructor;
-GRANT SELECT ON TABLE Course_Instructors TO app_instructor; -- To see their assigned courses
-GRANT INSERT, UPDATE, DELETE ON TABLE CourseVideos TO app_instructor;
-GRANT INSERT, UPDATE, DELETE ON TABLE CourseNotes TO app_instructor;
-GRANT INSERT, UPDATE, DELETE ON TABLE CourseOnlineBooks TO app_instructor;
--- Note: Granular control (e.g., instructors only managing content for their own courses)
--- should be enforced at the application layer.
+-- -- 5. Grant Permissions to app_instructor
+-- -- app_instructor has read access to relevant course info and can manage course content.
+-- CREATE ROLE app_instructor;
+-- GRANT SELECT ON TABLE Courses TO app_instructor;
+-- GRANT SELECT ON TABLE Topics TO app_instructor;
+-- GRANT SELECT ON TABLE Universities TO app_instructor;
+-- GRANT SELECT ON TABLE TextBooks TO app_instructor;
+-- GRANT SELECT ON TABLE Course_Instructors TO app_instructor; -- To see their assigned courses
+-- GRANT INSERT, UPDATE, DELETE ON TABLE CourseVideos TO app_instructor;
+-- GRANT INSERT, UPDATE, DELETE ON TABLE CourseNotes TO app_instructor;
+-- GRANT INSERT, UPDATE, DELETE ON TABLE CourseOnlineBooks TO app_instructor;
+-- -- Note: Granular control (e.g., instructors only managing content for their own courses)
+-- -- should be enforced at the application layer.
 
 -- ==========================================
 -- ROLE-SPECIFIC VIEWS
@@ -232,7 +232,7 @@ JOIN
     Universities u ON c.uni_id = u.uni_id;
 
 -- Grant access to the student view
-GRANT SELECT ON student_courses TO app_student;
+-- GRANT SELECT ON student_courses TO app_student;
 
 -- View for Instructors: instructor_assigned_courses
 -- Allows instructors to see courses they are assigned to.
@@ -252,7 +252,7 @@ JOIN
     Universities u ON c.uni_id = u.uni_id;
 
 -- Grant access to the instructor view
-GRANT SELECT ON instructor_assigned_courses TO app_instructor;
+-- GRANT SELECT ON instructor_assigned_courses TO app_instructor;
 
 -- View for Data Analysts: course_statistics (example)
 -- A more complex view for analysts to get aggregated data.
@@ -271,7 +271,7 @@ GROUP BY
     c.course_id, c.course_name;
 
 -- Grant access to the analyst view
-GRANT SELECT ON course_statistics TO app_analyst;
+-- GRANT SELECT ON course_statistics TO app_analyst;
 
 -- Alternatively, for future tables, you can set default privileges:
 -- ALTER DEFAULT PRIVILEGES FOR ROLE app_admin IN SCHEMA public GRANT ALL PRIVILEGES ON TABLES TO app_admin;

@@ -92,20 +92,31 @@ def login():
 
 @auth.route('/login', methods=['POST'])
 def login_post():
-    email_or_username = request.form.get('email_username')
+    email_username = request.form.get('email_username')
     password = request.form.get('password')
     remember = True if request.form.get('remember') else False
 
-    # Query for a user by email OR username
-    user = User.query.filter(
-        or_(User.email == email_or_username, User.username == email_or_username)
-    ).first()
+    user = User.query.filter_by(email=email_username).first()
+    if not user:
+        user = User.query.filter_by(username=email_username).first()
+
 
     if not user or not check_password_hash(user.password_hash, password):
         flash('Please check your login details and try again.')
         return redirect(url_for('auth.login'))
     
     login_user(user, remember=remember)
+
+    # Redirect based on role
+    role = user.role.value if hasattr(user.role, 'value') else str(user.role)
+    if role == 'admin':
+        return redirect(url_for('admin.dashboard'))
+    elif role == 'analyst':
+        return redirect(url_for('analyst.dashboard'))
+    elif role == 'student':
+        return redirect(url_for('student.dashboard'))
+    elif role == 'instructor':
+        return redirect(url_for('instructor.dashboard'))
     return redirect(url_for('main.profile'))
 
 @auth.route('/logout')

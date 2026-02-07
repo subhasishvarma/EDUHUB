@@ -749,6 +749,16 @@
             <div class="collapse navbar-collapse" id="navbarContent">
                 <div class="nav-buttons ms-auto d-flex gap-2 align-items-center">
                     {% if current_user.is_authenticated %}
+                        {% set role = current_user.role.value if current_user.role and current_user.role.value else (current_user.role | string) %}
+                        {% if role == 'admin' %}
+                        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-dark">Admin Dashboard</a>
+                        {% elif role == 'student' %}
+                        <a href="{{ url_for('student.dashboard') }}" class="btn btn-outline-dark">My Dashboard</a>
+                        {% elif role == 'instructor' %}
+                        <a href="{{ url_for('instructor.dashboard') }}" class="btn btn-outline-dark">Instructor Dashboard</a>
+                        {% elif role == 'analyst' %}
+                        <a href="{{ url_for('analyst.dashboard') }}" class="btn btn-outline-dark">Analyst Dashboard</a>
+                        {% endif %}
                         <a href="{{ url_for('main.profile') }}" class="btn btn-outline-dark">Profile</a>
                         <a href="{{ url_for('auth.logout') }}" class="btn btn-dark">Logout</a>
                     {% else %}

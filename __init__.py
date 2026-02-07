@@ -28,6 +28,18 @@ def create_app():
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
+    from .admin import admin as admin_blueprint
+    app.register_blueprint(admin_blueprint)
+
+    from .student import student as student_blueprint
+    app.register_blueprint(student_blueprint)
+
+    from .instructor import instructor as instructor_blueprint
+    app.register_blueprint(instructor_blueprint)
+
+    from .analyst import analyst as analyst_blueprint
+    app.register_blueprint(analyst_blueprint)
+
     # with app.app_context():
     #     db.create_all()
 
