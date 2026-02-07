@@ -1,13 +1,11 @@
+# Python cache
 __pycache__/
-*.py[cod]
-*.so
-.Python
-.env
+*.pyc
+
+# Virtual environment
 venv/
-.venv/
-*.egg-info/
-.eggs/
-instance/
-.pytest_cache/
-.coverage
-htmlcov/
+.env/
+
+# OS files
+.DS_Store
+Thumbs.db
