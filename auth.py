@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required
+from sqlalchemy import or_
 from .models import db, User, Student, Instructor, Admin, Analyst
 
 auth = Blueprint('auth', __name__)
@@ -53,7 +54,7 @@ def signup_post():
         new_user = Student(
             **common_args,
             age=age if age else None,
-            skill_level='Beginner',  # Set at signup per schema
+            skill_level='Beginner',  
             country=country or None
         )
     elif role == 'instructor':
@@ -91,11 +92,14 @@ def login():
 
 @auth.route('/login', methods=['POST'])
 def login_post():
-    email = request.form.get('email')
+    email_or_username = request.form.get('email_username')
     password = request.form.get('password')
     remember = True if request.form.get('remember') else False
 
-    user = User.query.filter_by(email=email).first()
+    # Query for a user by email OR username
+    user = User.query.filter(
+        or_(User.email == email_or_username, User.username == email_or_username)
+    ).first()
 
     if not user or not check_password_hash(user.password_hash, password):
         flash('Please check your login details and try again.')

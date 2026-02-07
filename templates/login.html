@@ -27,8 +27,8 @@
 
             <form method="POST" action="{{ url_for('auth.login_post') }}">
                 <div class="mb-3">
-                    <label for="email" class="form-label">Email address</label>
-                    <input type="email" class="form-control" id="email" name="email" required placeholder="you@example.com">
+                    <label for="email_username" class="form-label">Email address / Username</label>
+                    <input type="text" class="form-control" id="email_username" name="email_username" required placeholder="you@example.com or your username">
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
