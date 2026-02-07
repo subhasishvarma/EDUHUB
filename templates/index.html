@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}EduHub | Transform Your Future Through Learning{% endblock %}
+
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<!-- HERO SECTION -->
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center gy-5">
+
+            <div class="col-lg-6 hero-content">
+                <div class="stats-badge">
+                    <i class="fas fa-star"></i>
+                    <span>Trusted by 5M+ learners worldwide</span>
+                </div>
+
+                <h1>
+                    Learn From<br>
+                    <span class="highlight">World's Best</span><br>
+                    Universities
+                </h1>
+                
+                <p class="lead">
+                    Access premium courses from MIT, Stanford, Yale, and IIT. 
+                    Build career-defining skills with personalized learning paths, 
+                    expert instruction, and globally recognized certificates.
+                </p>
+
+                <div class="cta-buttons">
+                    <a href="{{ url_for('auth.signup') }}" class="btn btn-primary-hero">
+                        Explore Courses
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="hero-image-wrapper">
+                    <div class="hero-image-container">
+                        <img src="{{ url_for('static', filename='scholar.jpeg') }}" alt="Online Learning Excellence" onerror="this.style.display='none'">
+                    </div>
+                    <!-- Floating Cards -->
+                    <div class="floating-card floating-card-1 d-none d-lg-flex">
+                        <i class="fas fa-certificate"></i>
+                        <div class="floating-card-content">
+                            <h5>Verified Certificates</h5>
+                            <p>Industry recognized</p>
+                        </div>
+                    </div>
+                    
+                    <div class="floating-card floating-card-2 d-none d-lg-flex">
+                        <i class="fas fa-users"></i>
+                        <div class="floating-card-content">
+                            <h5>Expert Instructors</h5>
+                            <p>From top institutions</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- INSTITUTIONS SECTION -->
+<section class="institutions">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-badge">World-Class Partners</div>
+            <h2>Learn From Elite Institutions</h2>
+            <p>Partner with the world's most prestigious universities and gain credentials that matter in your career.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-6 col-md-4 col-lg-4">
+                <div class="institution-card">
+                    <div class="institution-icon">IIT</div>
+                    <h3 class="institution-name">IIT</h3>
+                    <p class="institution-desc">Indian Institute of Technology</p>
+                </div>
+            </div>
+            
+            <div class="col-6 col-md-4 col-lg-4">
+                <div class="institution-card">
+                    <div class="institution-icon">MIT</div>
+                    <h3 class="institution-name">MIT</h3>
+                    <p class="institution-desc">Massachusetts Institute of Technology</p>
+                </div>
+            </div>
+            
+            <div class="col-6 col-md-4 col-lg-4">
+                <div class="institution-card">
+                    <div class="institution-icon">
+                        <i class="fas fa-tree"></i>
+                    </div>
+                    <h3 class="institution-name">Stanford</h3>
+                    <p class="institution-desc">Stanford University</p>
+                </div>
+            </div>
+            
+            <div class="col-6 col-md-4 col-lg-4">
+                <div class="institution-card">
+                    <div class="institution-icon">Y</div>
+                    <h3 class="institution-name">Yale</h3>
+                    <p class="institution-desc">Yale University</p>
+                </div>
+            </div>
+            
+            <div class="col-6 col-md-4 col-lg-4">
+                <div class="institution-card">
+                    <div class="institution-icon">H</div>
+                    <h3 class="institution-name">Harvard</h3>
+                    <p class="institution-desc">Harvard University</p>
+                </div>
+            </div>
+            
+            <div class="col-6 col-md-4 col-lg-4">
+                <div class="institution-card">
+                    <div class="institution-icon">
+                        <i class="fas fa-landmark"></i>
+                    </div>
+                    <h3 class="institution-name">Oxford</h3>
+                    <p class="institution-desc">University of Oxford</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES SECTION -->
+<section class="features">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-badge">Why Choose EduHub</div>
+            <h2>Everything You Need to Succeed</h2>
+            <p>Premium features designed to accelerate your learning journey and career growth.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h4>Expert-Led Courses</h4>
+                    <p>Learn from renowned professors and industry leaders who bring real-world expertise to every lesson.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h4>Learn At Your Pace</h4>
+                    <p>Flexible schedules that fit your lifestyle. Access courses anytime, anywhere, on any device.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <h4>Verified Certificates</h4>
+                    <p>Earn industry-recognized credentials that boost your resume and validate your skills.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

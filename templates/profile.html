@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Profile | EduHub{% endblock %}
+
+{% block main_class %}container{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-md-8 col-lg-6">
+        <div class="page-card">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="rounded-circle d-flex align-items-center justify-content-center bg-eduhub-soft text-eduhub" style="width: 64px; height: 64px; font-size: 1.5rem; background: var(--accent-soft); color: var(--accent);">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <h2 class="card-title mb-0" style="font-size: 1.5rem;">Welcome, {{ user.first_name }}!</h2>
+                    <p class="text-muted small mb-0">@{{ user.username }} · {{ user.role | capitalize }}</p>
+                </div>
+            </div>
+
+            <hr class="my-4" style="border-color: var(--border-subtle);">
+
+            <div class="mb-3">
+                <span class="text-muted small d-block mb-1">Username</span>
+                <span class="fw-semibold">{{ user.username }}</span>
+            </div>
+            <div class="mb-3">
+                <span class="text-muted small d-block mb-1">Email</span>
+                <span class="fw-semibold">{{ user.email }}</span>
+            </div>
+            <div class="mb-3">
+                <span class="text-muted small d-block mb-1">Role</span>
+                <span class="badge rounded-pill" style="background: var(--accent-soft); color: var(--accent); font-weight: 600;">{{ user.role }}</span>
+            </div>
+
+            {% if user.role == 'student' %}
+                <div class="mb-3">
+                    <span class="text-muted small d-block mb-1">Age</span>
+                    <span class="fw-semibold">{{ user.age or '—' }}</span>
+                </div>
+                <div class="mb-3">
+                    <span class="text-muted small d-block mb-1">Skill Level</span>
+                    <span class="fw-semibold">{{ user.skill_level or '—' }}</span>
+                </div>
+                <div class="mb-3">
+                    <span class="text-muted small d-block mb-1">Country</span>
+                    <span class="fw-semibold">{{ user.country or '—' }}</span>
+                </div>
+            {% elif user.role == 'instructor' %}
+                <div class="mb-3">
+                    <span class="text-muted small d-block mb-1">Phone</span>
+                    <span class="fw-semibold">{{ user.phone_number or '—' }}</span>
+                </div>
+                <div class="mb-3">
+                    <span class="text-muted small d-block mb-1">Bio</span>
+                    <p class="fw-normal mb-0" style="color: var(--text-dark);">{{ user.bio or '—' }}</p>
+                </div>
+            {% endif %}
+
+            <hr class="my-4" style="border-color: var(--border-subtle);">
+
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-eduhub-outline">
+                <i class="fas fa-sign-out-alt me-2"></i>Logout
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
