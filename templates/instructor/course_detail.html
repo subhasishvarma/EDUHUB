@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Manage Content | {{ course.course_name }}{% endblock %}
+{% block main_class %}container{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+  <div class="col-lg-10">
+    <div class="page-card">
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <div>
+          <h2 class="card-title mb-1">{{ course.course_name }}</h2>
+          <p class="text-muted mb-0">Add / remove course content (videos, notes, online books)</p>
+        </div>
+        <a href="{{ url_for('instructor.dashboard') }}" class="btn btn-eduhub-outline">
+          <i class="fas fa-arrow-left me-2"></i>Back
+        </a>
+      </div>
+
+      <hr class="my-4" style="border-color: var(--border-subtle);">
+
+      <!-- VIDEOS -->
+      <h4 class="mb-3">Videos</h4>
+      <form class="row g-2 mb-3" method="POST" action="{{ url_for('instructor.add_video', course_id=course.course_id) }}">
+        <div class="col-md-5"><input class="form-control" name="video_url" placeholder="Video URL" required></div>
+        <div class="col-md-4"><input class="form-control" name="title" placeholder="Title" required></div>
+        <div class="col-md-2"><input class="form-control" name="duration_minutes" type="number" min="1" placeholder="Minutes" required></div>
+        <div class="col-md-1 d-grid"><button class="btn btn-eduhub-primary" type="submit">Add</button></div>
+      </form>
+
+      {% if videos %}
+        {% for v in videos %}
+        <div class="d-flex justify-content-between align-items-center border rounded-4 p-3 mb-2">
+          <div>
+            <div class="fw-semibold">{{ v.title }}</div>
+            <div class="text-muted small">{{ v.video_url }} · {{ v.duration_minutes }} min</div>
+          </div>
+          <form method="POST" action="{{ url_for('instructor.delete_video', course_id=course.course_id) }}">
+            <input type="hidden" name="video_url" value="{{ v.video_url }}">
+            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+          </form>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p class="text-muted small">No videos added yet.</p>
+      {% endif %}
+
+      <hr class="my-4">
+
+      <!-- NOTES -->
+      <h4 class="mb-3">Notes</h4>
+      <form class="row g-2 mb-3" method="POST" action="{{ url_for('instructor.add_note', course_id=course.course_id) }}">
+        <div class="col-md-5"><input class="form-control" name="note_url" placeholder="Note URL" required></div>
+        <div class="col-md-4"><input class="form-control" name="title" placeholder="Title" required></div>
+        <div class="col-md-2"><input class="form-control" name="format" placeholder="PDF / DOCX" value="PDF"></div>
+        <div class="col-md-1 d-grid"><button class="btn btn-eduhub-primary" type="submit">Add</button></div>
+      </form>
+
+      {% if notes %}
+        {% for n in notes %}
+        <div class="d-flex justify-content-between align-items-center border rounded-4 p-3 mb-2">
+          <div>
+            <div class="fw-semibold">{{ n.title }}</div>
+            <div class="text-muted small">{{ n.note_url }} · {{ n.format }}</div>
+          </div>
+          <form method="POST" action="{{ url_for('instructor.delete_note', course_id=course.course_id) }}">
+            <input type="hidden" name="note_url" value="{{ n.note_url }}">
+            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+          </form>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p class="text-muted small">No notes added yet.</p>
+      {% endif %}
+
+      <hr class="my-4">
+
+      <!-- BOOKS -->
+      <h4 class="mb-3">Online Books</h4>
+      <form class="row g-2 mb-3" method="POST" action="{{ url_for('instructor.add_book', course_id=course.course_id) }}">
+        <div class="col-md-5"><input class="form-control" name="book_url" placeholder="Book URL" required></div>
+        <div class="col-md-4"><input class="form-control" name="title" placeholder="Title" required></div>
+        <div class="col-md-2"><input class="form-control" name="page_count" type="number" min="1" placeholder="Pages"></div>
+        <div class="col-md-1 d-grid"><button class="btn btn-eduhub-primary" type="submit">Add</button></div>
+      </form>
+
+      {% if books %}
+        {% for b in books %}
+        <div class="d-flex justify-content-between align-items-center border rounded-4 p-3 mb-2">
+          <div>
+            <div class="fw-semibold">{{ b.title }}</div>
+            <div class="text-muted small">{{ b.book_url }} · {{ b.page_count or "—" }} pages</div>
+          </div>
+          <form method="POST" action="{{ url_for('instructor.delete_book', course_id=course.course_id) }}">
+            <input type="hidden" name="book_url" value="{{ b.book_url }}">
+            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+          </form>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p class="text-muted small">No online books added yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -125,3 +125,34 @@ class Enrollment(db.Model):
     enrollment_date = db.Column(db.Date, server_default=func.current_date())
     grade = db.Column(db.Numeric(5, 2))
     due_by = db.Column(db.Date)
+
+
+class CourseVideo(db.Model):
+    __tablename__ = 'coursevideos'
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.course_id', ondelete='CASCADE'), primary_key=True)
+    video_url = db.Column(db.String(500), primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    duration_minutes = db.Column(db.Integer, nullable=False)
+    uploaded_at = db.Column(db.TIMESTAMP, server_default=func.current_timestamp())
+
+    course = db.relationship('Course', backref=db.backref('videos', lazy=True, cascade='all, delete-orphan'))
+
+
+class CourseNote(db.Model):
+    __tablename__ = 'coursenotes'
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.course_id', ondelete='CASCADE'), primary_key=True)
+    note_url = db.Column(db.String(500), primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    format = db.Column(db.String(10), default='PDF')
+
+    course = db.relationship('Course', backref=db.backref('notes', lazy=True, cascade='all, delete-orphan'))
+
+
+class CourseOnlineBook(db.Model):
+    __tablename__ = 'courseonlinebooks'
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.course_id', ondelete='CASCADE'), primary_key=True)
+    book_url = db.Column(db.String(500), primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    page_count = db.Column(db.Integer)
+
+    course = db.relationship('Course', backref=db.backref('online_books', lazy=True, cascade='all, delete-orphan'))

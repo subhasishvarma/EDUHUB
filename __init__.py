@@ -2,6 +2,7 @@ from flask import Flask
 from flask_login import LoginManager
 from .models import db, User
 
+
 def create_app():
     app = Flask(__name__)
 
@@ -20,13 +21,6 @@ def create_app():
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
-
-    # --- Template filter: safe enum/value display (Jinja2 doesn't expose hasattr) ---
-    @app.template_filter('enum_display')
-    def enum_display(val):
-        if val is None:
-            return None
-        return getattr(val, 'value', val)
 
     # --- Blueprints ---
     from .auth import auth as auth_blueprint

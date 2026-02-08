@@ -1,6 +1,9 @@
+import os
 import click
 from flask.cli import with_appcontext
 from .__init__ import create_app, db
+from sqlalchemy import text
+
 
 app = create_app()
 
@@ -8,8 +11,9 @@ app = create_app()
 @with_appcontext
 def init_db_command():
     """Clear the existing data and create new tables."""
-    with open('schema.sql', 'r') as f:
-        db.session.execute(f.read())
+    schema_path = os.path.join(os.path.dirname(__file__), "schema.sql")
+    with open(schema_path, "r", encoding="utf-8") as f:
+        db.session.execute(text(f.read()))
     db.session.commit()
     click.echo('Initialized the database.')
 
