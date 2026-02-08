@@ -6,6 +6,13 @@ from .models import db, User
 def create_app():
     app = Flask(__name__)
 
+    @app.template_filter("enum_display")
+    def enum_display(v):
+        if v is None:
+            return ""
+        s = getattr(v, "value", str(v))
+        return s.replace("_", " ").title()
+
     # --- Configuration ---
     app.config['SECRET_KEY'] = 'a_very_secret_key' # Replace with a real secret key
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://23CS30019:23CS30019@10.5.18.103:5432/23CS30019'
