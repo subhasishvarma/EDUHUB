@@ -42,7 +42,7 @@ def _safe_query(query_fn, default=None):
 def dashboard():
     # Stats - wrap in safe calls in case some tables don't exist yet
     stats = {
-        'total_users': _safe_count(User),
+        'total_users': _safe_count(Student)+_safe_count(Instructor),
         'total_students': _safe_count(Student),
         'total_instructors': _safe_count(Instructor),
         'total_admins': _safe_count(Admin),
@@ -66,11 +66,11 @@ def students():
     items = _safe_query(lambda: Student.query.all(), default=[])
     if request.method == 'POST' and request.form.get('action') == 'delete':
         sid = request.form.get('student_id')
-        if sid and sid != str(current_user.id):
+        if sid and sid != str(current_user.user_id):
             try:
                 student = Student.query.get(int(sid))
                 if student:
-                    uid = student.id
+                    uid = student.user_id
                     db.session.delete(student)
                     user = User.query.get(uid)
                     if user:
@@ -83,7 +83,7 @@ def students():
                 db.session.rollback()
                 flash(f'Error: {e}')
             return redirect(url_for('admin.students'))
-        elif sid == str(current_user.id):
+        elif sid == str(current_user.user_id):
             flash('You cannot remove yourself.')
             return redirect(url_for('admin.students'))
     if request.method == 'POST' and request.form.get('action') == 'add':
@@ -126,11 +126,11 @@ def instructors():
     items = _safe_query(lambda: Instructor.query.all(), default=[])
     if request.method == 'POST' and request.form.get('action') == 'delete':
         iid = request.form.get('instructor_id')
-        if iid and iid != str(current_user.id):
+        if iid and iid != str(current_user.user_id):
             try:
                 instructor = Instructor.query.get(int(iid))
                 if instructor:
-                    uid = instructor.id
+                    uid = instructor.user_id
                     db.session.delete(instructor)
                     user = User.query.get(uid)
                     if user:
@@ -143,7 +143,7 @@ def instructors():
                 db.session.rollback()
                 flash(f'Error: {e}')
             return redirect(url_for('admin.instructors'))
-        elif iid == str(current_user.id):
+        elif iid == str(current_user.user_id):
             flash('You cannot remove yourself.')
             return redirect(url_for('admin.instructors'))
     if request.method == 'POST' and request.form.get('action') == 'add':
@@ -318,7 +318,7 @@ def enrollments():
     enrollments_list = _safe_query(
         lambda: db.session.query(Enrollment, Course, Student)
         .join(Course, Enrollment.course_id == Course.course_id)
-        .join(Student, Enrollment.student_id == Student.id)
+        .join(Student, Enrollment.student_id == Student.user_id)
         .order_by(Enrollment.enrollment_date.desc())
         .all(),
         default=[]

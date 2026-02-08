@@ -21,6 +21,13 @@ def create_app():
     def load_user(user_id):
         return User.query.get(int(user_id))
 
+    # --- Template filter: safe enum/value display (Jinja2 doesn't expose hasattr) ---
+    @app.template_filter('enum_display')
+    def enum_display(val):
+        if val is None:
+            return None
+        return getattr(val, 'value', val)
+
     # --- Blueprints ---
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
