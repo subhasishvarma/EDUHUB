@@ -44,7 +44,7 @@
                     <td><strong>{{ c.course_name }}</strong></td>
                     <td>{{ c.university.uni_name if c.university else '—' }}</td>
                     <td>{{ c.duration_weeks or '—' }} wk</td>
-                    <td>{{ (c.c_type.value if hasattr(c.c_type, 'value') else c.c_type) or '—' }}</td>
+                    <td>{{ (c.c_type|enum_display) or '—' }}</td>
                     <td>
                         <div class="instructor-list">
                             {% for inst in c.instructors %}
@@ -53,7 +53,7 @@
                                 <form method="POST" class="d-inline" onsubmit="return confirm('Remove this instructor from the course?');">
                                     <input type="hidden" name="action" value="remove_instructor">
                                     <input type="hidden" name="course_id" value="{{ c.course_id }}">
-                                    <input type="hidden" name="instructor_id" value="{{ inst.id }}">
+                                    <input type="hidden" name="instructor_id" value="{{ inst.user_id }}">
                                     <button type="submit" class="btn btn-link btn-sm text-danger p-0 ms-1" title="Remove from course"><i class="fas fa-times"></i></button>
                                 </form>
                             </span>
@@ -68,7 +68,7 @@
                                 <option value="">Add instructor…</option>
                                 {% for i in instructors_list %}
                                 {% if i not in c.instructors %}
-                                <option value="{{ i.id }}">{{ i.first_name }} {{ i.last_name or '' }}</option>
+                                <option value="{{ i.user_id }}">{{ i.first_name }} {{ i.last_name or '' }}</option>
                                 {% endif %}
                                 {% endfor %}
                             </select>

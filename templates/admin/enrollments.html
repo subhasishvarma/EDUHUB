@@ -46,7 +46,7 @@
                     <td>
                         <form method="POST" class="d-inline" onsubmit="return confirm('Remove this student from the course?');">
                             <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="student_id" value="{{ student.id }}">
+                            <input type="hidden" name="student_id" value="{{ student.user_id }}">
                             <input type="hidden" name="course_id" value="{{ course.course_id }}">
                             <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fas fa-user-minus me-1"></i>Remove</button>
                         </form>
@@ -75,7 +75,7 @@
             <div class="row g-3">
                 <div class="col-md-6"><label class="form-label">Student *</label><select name="student_id" class="form-select" required>
                     <option value="">-- Select Student --</option>
-                    {% for s in students %}<option value="{{ s.id }}">{{ s.first_name }} {{ s.last_name or '' }} ({{ s.email }})</option>{% endfor %}
+                    {% for s in students %}<option value="{{ s.user_id }}">{{ s.first_name }} {{ s.last_name or '' }} ({{ s.email }})</option>{% endfor %}
                 </select></div>
                 <div class="col-md-6"><label class="form-label">Course *</label><select name="course_id" class="form-select" required>
                     <option value="">-- Select Course --</option>

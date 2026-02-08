@@ -46,7 +46,7 @@
                     <td>
                         <form method="POST" class="d-inline" onsubmit="return confirm('Remove this instructor from the platform? They will be unassigned from all courses.');">
                             <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="instructor_id" value="{{ i.id }}">
+                            <input type="hidden" name="instructor_id" value="{{ i.user_id }}">
                             <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash-alt me-1"></i>Remove</button>
                         </form>
                     </td>

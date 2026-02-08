@@ -47,7 +47,7 @@
                     <td>
                         <form method="POST" class="d-inline" onsubmit="return confirm('Remove this student from the platform? This will also remove all their enrollments.');">
                             <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="student_id" value="{{ s.id }}">
+                            <input type="hidden" name="student_id" value="{{ s.user_id }}">
                             <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash-alt me-1"></i>Remove</button>
                         </form>
                     </td>
