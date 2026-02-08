@@ -2,12 +2,11 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from sqlalchemy import Enum, func
 
-# This db object will be initialized in the main __init__.py
 db = SQLAlchemy()
 
-# Using SQLAlchemy's Enum type is better for mapping to PostgreSQL ENUM
 user_role_enum = Enum('admin', 'analyst', 'student', 'instructor', name='user_role')
 course_type_enum = Enum('degree', 'diploma', 'certificate', name='course_type')
+
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -24,7 +23,6 @@ class User(UserMixin, db.Model):
     def get_id(self):
         return self.user_id
 
-    # Property for Flask-Login to use
     @property
     def password(self):
         raise AttributeError('password is not a readable attribute')
@@ -33,27 +31,23 @@ class User(UserMixin, db.Model):
     def password(self, password):
         self.password_hash = password
 
-    # Polymorphic identity for inheritance
     __mapper_args__ = {
         'polymorphic_identity': 'user',
         'polymorphic_on': role
     }
 
+
 class Admin(User):
     __tablename__ = 'admins'
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), primary_key=True)
+    __mapper_args__ = {'polymorphic_identity': 'admin'}
 
-    __mapper_args__ = {
-        'polymorphic_identity': 'admin',
-    }
 
 class Analyst(User):
     __tablename__ = 'analysts'
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), primary_key=True)
+    __mapper_args__ = {'polymorphic_identity': 'analyst'}
 
-    __mapper_args__ = {
-        'polymorphic_identity': 'analyst',
-    }
 
 class Student(User):
     __tablename__ = 'students'
@@ -61,23 +55,18 @@ class Student(User):
     age = db.Column(db.Integer)
     skill_level = db.Column(db.String(50))
     country = db.Column(db.String(100))
+    __mapper_args__ = {'polymorphic_identity': 'student'}
 
-    __mapper_args__ = {
-        'polymorphic_identity': 'student',
-    }
 
 class Instructor(User):
     __tablename__ = 'instructors'
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), primary_key=True)
     phone_number = db.Column(db.String(20))
     bio = db.Column(db.String(500))
-
-    __mapper_args__ = {
-        'polymorphic_identity': 'instructor',
-    }
+    __mapper_args__ = {'polymorphic_identity': 'instructor'}
 
 
-# --- Other schema entities for admin dashboard ---
+# ----------------- Admin dashboard entities -----------------
 class University(db.Model):
     __tablename__ = 'universities'
     uni_id = db.Column(db.Integer, primary_key=True)
@@ -85,10 +74,13 @@ class University(db.Model):
     city = db.Column(db.String(100))
     country = db.Column(db.String(100))
     uni_type = db.Column(db.String(50))
-    courses = db.relationship('Course', backref='university', lazy=True, cascade='all, delete-orphan')
+
+    courses = db.relationship(
+        'Course', backref='university', lazy=True, cascade='all, delete-orphan'
+    )
 
 
-# Many-to-many: instructors assigned to courses (admin adds teachers to a course)
+# Many-to-many: instructors assigned to courses
 course_instructors = db.Table(
     'course_instructors',
     db.Column('course_id', db.Integer, db.ForeignKey('courses.course_id', ondelete='CASCADE'), primary_key=True),
@@ -103,7 +95,9 @@ class Course(db.Model):
     duration_weeks = db.Column(db.Integer)
     c_type = db.Column(course_type_enum)
     uni_id = db.Column(db.Integer, db.ForeignKey('universities.uni_id', ondelete='CASCADE'), nullable=False)
+
     enrollments = db.relationship('Enrollment', backref='course', lazy=True, cascade='all, delete-orphan')
+
     instructors = db.relationship(
         'Instructor',
         secondary=course_instructors,
@@ -112,6 +106,7 @@ class Course(db.Model):
     )
 
 
+# Legacy Topic (keep, but you will stop using it later)
 class Topic(db.Model):
     __tablename__ = 'topics'
     topic_id = db.Column(db.Integer, primary_key=True)
@@ -122,11 +117,17 @@ class Enrollment(db.Model):
     __tablename__ = 'enrollments'
     student_id = db.Column(db.Integer, db.ForeignKey('students.user_id', ondelete='CASCADE'), primary_key=True)
     course_id = db.Column(db.Integer, db.ForeignKey('courses.course_id', ondelete='CASCADE'), primary_key=True)
+
     enrollment_date = db.Column(db.Date, server_default=func.current_date())
-    grade = db.Column(db.Numeric(5, 2))
     due_by = db.Column(db.Date)
 
+    marks = db.Column(db.Numeric(5, 2))
+    letter_grade = db.Column(db.String(5))
 
+    student = db.relationship('Student', backref=db.backref('enrollments', lazy=True))
+
+
+# ----------------- Legacy content tables (keep for now) -----------------
 class CourseVideo(db.Model):
     __tablename__ = 'coursevideos'
     course_id = db.Column(db.Integer, db.ForeignKey('courses.course_id', ondelete='CASCADE'), primary_key=True)
@@ -156,3 +157,63 @@ class CourseOnlineBook(db.Model):
     page_count = db.Column(db.Integer)
 
     course = db.relationship('Course', backref=db.backref('online_books', lazy=True, cascade='all, delete-orphan'))
+
+
+# ==========================================================
+# NEW STRUCTURE: Course -> Modules -> Topics -> Subtopics -> Contents
+# ==========================================================
+
+class CourseModule(db.Model):
+    __tablename__ = 'coursemodules'
+    module_id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.course_id', ondelete='CASCADE'), nullable=False)
+    module_title = db.Column(db.String(255), nullable=False)
+    module_order = db.Column(db.Integer, default=1)
+
+    course = db.relationship('Course', backref=db.backref('modules', lazy=True, cascade='all, delete-orphan'))
+
+
+class ModuleTopic(db.Model):
+    __tablename__ = 'moduletopics'
+    topic_id = db.Column(db.Integer, primary_key=True)
+    module_id = db.Column(db.Integer, db.ForeignKey('coursemodules.module_id', ondelete='CASCADE'), nullable=False)
+    topic_title = db.Column(db.String(255), nullable=False)
+    topic_order = db.Column(db.Integer, default=1)
+
+    module = db.relationship('CourseModule', backref=db.backref('topics', lazy=True, cascade='all, delete-orphan'))
+
+
+class TopicSubtopic(db.Model):
+    __tablename__ = 'topicsubtopics'
+    subtopic_id = db.Column(db.Integer, primary_key=True)
+    topic_id = db.Column(db.Integer, db.ForeignKey('moduletopics.topic_id', ondelete='CASCADE'), nullable=False)
+    subtopic_title = db.Column(db.String(255), nullable=False)
+    subtopic_order = db.Column(db.Integer, default=1)
+
+    topic = db.relationship('ModuleTopic', backref=db.backref('subtopics', lazy=True, cascade='all, delete-orphan'))
+
+
+# ✅ UPDATED: Subtopic content now supports Video / Notes / Online Book
+class SubtopicContent(db.Model):
+    __tablename__ = 'subtopiccontents'
+
+    content_id = db.Column(db.Integer, primary_key=True)
+    subtopic_id = db.Column(db.Integer, db.ForeignKey('topicsubtopics.subtopic_id', ondelete='CASCADE'), nullable=False)
+
+    # video / notes / book
+    content_type = db.Column(db.String(20), nullable=False)
+
+    # common
+    title = db.Column(db.String(255), nullable=False)
+    url = db.Column(db.String(500), nullable=False)
+
+    # optional
+    duration_minutes = db.Column(db.Integer)  # for video
+    file_format = db.Column(db.String(20))    # for notes
+
+    content_order = db.Column(db.Integer, default=1)
+
+    subtopic = db.relationship(
+        'TopicSubtopic',
+        backref=db.backref('contents', lazy=True, cascade='all, delete-orphan')
+    )

@@ -13,12 +13,18 @@ def create_app():
         s = getattr(v, "value", str(v))
         return s.replace("_", " ").title()
 
+    # ✅ ADD THIS FILTER
+    @app.template_filter("role_value")
+    def role_value(v):
+        if v is None:
+            return ""
+        return getattr(v, "value", str(v))
+
     # --- Configuration ---
-    app.config['SECRET_KEY'] = 'a_very_secret_key' # Replace with a real secret key
+    app.config['SECRET_KEY'] = 'a_very_secret_key'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://23CS30019:23CS30019@10.5.18.103:5432/23CS30019'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # --- Initialize Extensions ---
     db.init_app(app)
 
     login_manager = LoginManager()
@@ -29,7 +35,6 @@ def create_app():
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-    # --- Blueprints ---
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
 
@@ -47,8 +52,5 @@ def create_app():
 
     from .analyst import analyst as analyst_blueprint
     app.register_blueprint(analyst_blueprint)
-
-    # with app.app_context():
-    #     db.create_all()
 
     return app

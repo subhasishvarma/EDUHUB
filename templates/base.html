@@ -750,7 +750,8 @@
                 <div class="nav-buttons ms-auto d-flex gap-2 align-items-center">
                 {% if current_user.is_authenticated %}
 
-                    {% set role = current_user.role.value if current_user.role and current_user.role.value else (current_user.role | string) %}
+                    {% set role = current_user.role | role_value %}
+
 
                     {% if role == 'admin' %}
                         <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-dark">Admin Dashboard</a>

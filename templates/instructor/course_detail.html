@@ -1,105 +1,452 @@
 {% extends "base.html" %}
-{% block title %}Manage Content | {{ course.course_name }}{% endblock %}
-{% block main_class %}container{% endblock %}
-
 {% block content %}
-<div class="row justify-content-center py-5">
-  <div class="col-lg-10">
-    <div class="page-card">
-      <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-        <div>
-          <h2 class="card-title mb-1">{{ course.course_name }}</h2>
-          <p class="text-muted mb-0">Add / remove course content (videos, notes, online books)</p>
-        </div>
-        <a href="{{ url_for('instructor.dashboard') }}" class="btn btn-eduhub-outline">
-          <i class="fas fa-arrow-left me-2"></i>Back
-        </a>
+
+<div class="container mt-4">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h3 class="mb-1">{{ course.course_name }}</h3>
+      <div class="text-muted">
+        Duration: {{ course.duration_weeks or '—' }} weeks
+        {% if course.c_type %} | Type: {{ course.c_type }}{% endif %}
       </div>
-
-      <hr class="my-4" style="border-color: var(--border-subtle);">
-
-      <!-- VIDEOS -->
-      <h4 class="mb-3">Videos</h4>
-      <form class="row g-2 mb-3" method="POST" action="{{ url_for('instructor.add_video', course_id=course.course_id) }}">
-        <div class="col-md-5"><input class="form-control" name="video_url" placeholder="Video URL" required></div>
-        <div class="col-md-4"><input class="form-control" name="title" placeholder="Title" required></div>
-        <div class="col-md-2"><input class="form-control" name="duration_minutes" type="number" min="1" placeholder="Minutes" required></div>
-        <div class="col-md-1 d-grid"><button class="btn btn-eduhub-primary" type="submit">Add</button></div>
-      </form>
-
-      {% if videos %}
-        {% for v in videos %}
-        <div class="d-flex justify-content-between align-items-center border rounded-4 p-3 mb-2">
-          <div>
-            <div class="fw-semibold">{{ v.title }}</div>
-            <div class="text-muted small">{{ v.video_url }} · {{ v.duration_minutes }} min</div>
-          </div>
-          <form method="POST" action="{{ url_for('instructor.delete_video', course_id=course.course_id) }}">
-            <input type="hidden" name="video_url" value="{{ v.video_url }}">
-            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
-          </form>
-        </div>
-        {% endfor %}
-      {% else %}
-        <p class="text-muted small">No videos added yet.</p>
-      {% endif %}
-
-      <hr class="my-4">
-
-      <!-- NOTES -->
-      <h4 class="mb-3">Notes</h4>
-      <form class="row g-2 mb-3" method="POST" action="{{ url_for('instructor.add_note', course_id=course.course_id) }}">
-        <div class="col-md-5"><input class="form-control" name="note_url" placeholder="Note URL" required></div>
-        <div class="col-md-4"><input class="form-control" name="title" placeholder="Title" required></div>
-        <div class="col-md-2"><input class="form-control" name="format" placeholder="PDF / DOCX" value="PDF"></div>
-        <div class="col-md-1 d-grid"><button class="btn btn-eduhub-primary" type="submit">Add</button></div>
-      </form>
-
-      {% if notes %}
-        {% for n in notes %}
-        <div class="d-flex justify-content-between align-items-center border rounded-4 p-3 mb-2">
-          <div>
-            <div class="fw-semibold">{{ n.title }}</div>
-            <div class="text-muted small">{{ n.note_url }} · {{ n.format }}</div>
-          </div>
-          <form method="POST" action="{{ url_for('instructor.delete_note', course_id=course.course_id) }}">
-            <input type="hidden" name="note_url" value="{{ n.note_url }}">
-            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
-          </form>
-        </div>
-        {% endfor %}
-      {% else %}
-        <p class="text-muted small">No notes added yet.</p>
-      {% endif %}
-
-      <hr class="my-4">
-
-      <!-- BOOKS -->
-      <h4 class="mb-3">Online Books</h4>
-      <form class="row g-2 mb-3" method="POST" action="{{ url_for('instructor.add_book', course_id=course.course_id) }}">
-        <div class="col-md-5"><input class="form-control" name="book_url" placeholder="Book URL" required></div>
-        <div class="col-md-4"><input class="form-control" name="title" placeholder="Title" required></div>
-        <div class="col-md-2"><input class="form-control" name="page_count" type="number" min="1" placeholder="Pages"></div>
-        <div class="col-md-1 d-grid"><button class="btn btn-eduhub-primary" type="submit">Add</button></div>
-      </form>
-
-      {% if books %}
-        {% for b in books %}
-        <div class="d-flex justify-content-between align-items-center border rounded-4 p-3 mb-2">
-          <div>
-            <div class="fw-semibold">{{ b.title }}</div>
-            <div class="text-muted small">{{ b.book_url }} · {{ b.page_count or "—" }} pages</div>
-          </div>
-          <form method="POST" action="{{ url_for('instructor.delete_book', course_id=course.course_id) }}">
-            <input type="hidden" name="book_url" value="{{ b.book_url }}">
-            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
-          </form>
-        </div>
-        {% endfor %}
-      {% else %}
-        <p class="text-muted small">No online books added yet.</p>
-      {% endif %}
     </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('instructor.dashboard') }}">← Back</a>
   </div>
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="mb-3">
+        {% for msg in messages %}
+          <div class="alert alert-info mb-2">{{ msg }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <a class="nav-link {% if tab != 'students' %}active{% endif %}"
+         href="{{ url_for('instructor.course_detail', course_id=course.course_id, tab='modules') }}">
+        Modules
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {% if tab == 'students' %}active{% endif %}"
+         href="{{ url_for('instructor.course_detail', course_id=course.course_id, tab='students') }}">
+        Students
+      </a>
+    </li>
+  </ul>
+
+  {% if tab == 'students' %}
+    <!-- ========================= STUDENTS TAB ========================= -->
+    <div class="card">
+      <div class="card-header">
+        <strong>Enrolled Students</strong>
+      </div>
+      <div class="card-body">
+        {% if enrollments and enrollments|length > 0 %}
+          <div class="table-responsive">
+            <table class="table table-sm table-striped align-middle">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Email</th>
+                  <th style="width:140px;">Marks</th>
+                  <th style="width:140px;">Grade</th>
+                  <th style="width:160px;">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for enr in enrollments %}
+                  <tr>
+                    <td>
+                      {{ enr.student.first_name }} {{ enr.student.last_name or '' }}
+                      <div class="text-muted small">ID: {{ enr.student.user_id }}</div>
+                    </td>
+                    <td>{{ enr.student.email }}</td>
+
+                    <form method="POST" action="{{ url_for('instructor.grade_student', course_id=course.course_id) }}">
+                      <input type="hidden" name="student_id" value="{{ enr.student_id }}">
+                      <td>
+                        <input class="form-control form-control-sm"
+                               type="number" name="marks" step="0.01" min="0" max="100"
+                               value="{{ enr.marks if enr.marks is not none else '' }}"
+                               placeholder="e.g., 85.5">
+                      </td>
+                      <td>
+                        <input class="form-control form-control-sm"
+                               type="text" name="letter_grade" maxlength="5"
+                               value="{{ enr.letter_grade if enr.letter_grade is not none else '' }}"
+                               placeholder="A, B+, etc">
+                      </td>
+                      <td>
+                        <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                      </td>
+                    </form>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-muted">No students enrolled yet.</div>
+        {% endif %}
+      </div>
+    </div>
+
+  {% else %}
+    <!-- ========================= MODULES TAB ========================= -->
+
+    <!-- Add Module (NO ORDER) -->
+    <div class="card mb-3">
+      <div class="card-header">
+        <strong>Add Module</strong>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('instructor.add_module', course_id=course.course_id) }}" class="row g-2">
+          <div class="col-md-10">
+            <input class="form-control" name="module_title" placeholder="Module title (e.g., Module 1: Basics)" required>
+          </div>
+          <div class="col-md-2 d-grid">
+            <button class="btn btn-success" type="submit">Add</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modules list -->
+    {% if modules and modules|length > 0 %}
+      <div class="accordion" id="modulesAccordion">
+
+        {% for m in modules %}
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingModule{{ m.module_id }}">
+              <button class="accordion-button collapsed" type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#collapseModule{{ m.module_id }}"
+                      aria-expanded="false"
+                      aria-controls="collapseModule{{ m.module_id }}">
+                <div class="w-100 d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>{{ m.module_title }}</strong>
+                  </div>
+                  <span class="badge bg-secondary">
+                    Topics: {{ m.topics|length if m.topics else 0 }}
+                  </span>
+                </div>
+              </button>
+            </h2>
+
+            <div id="collapseModule{{ m.module_id }}"
+                 class="accordion-collapse collapse"
+                 aria-labelledby="headingModule{{ m.module_id }}"
+                 data-bs-parent="#modulesAccordion">
+              <div class="accordion-body">
+
+                <!-- Delete Module -->
+                <form method="POST" action="{{ url_for('instructor.delete_module', module_id=m.module_id) }}"
+                      onsubmit="return confirm('Delete this module? This will delete everything inside it.');"
+                      class="mb-3">
+                  <button class="btn btn-sm btn-outline-danger" type="submit">Delete Module</button>
+                </form>
+
+                <!-- Add Topic (NO ORDER) -->
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <strong>Add Topic</strong>
+                  </div>
+                  <div class="card-body">
+                    <form method="POST" action="{{ url_for('instructor.add_topic', module_id=m.module_id) }}" class="row g-2">
+                      <div class="col-md-10">
+                        <input class="form-control" name="topic_title" placeholder="Topic title (e.g., Variables)" required>
+                      </div>
+                      <div class="col-md-2 d-grid">
+                        <button class="btn btn-primary" type="submit">Add Topic</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+
+                <!-- Topics list -->
+                {% if m.topics and m.topics|length > 0 %}
+                  <div class="accordion" id="topicsAccordion{{ m.module_id }}">
+                    {% for t in m.topics|sort(attribute='topic_order') %}
+                      <div class="accordion-item mb-2">
+                        <h2 class="accordion-header" id="headingTopic{{ t.topic_id }}">
+                          <button class="accordion-button collapsed" type="button"
+                                  data-bs-toggle="collapse"
+                                  data-bs-target="#collapseTopic{{ t.topic_id }}"
+                                  aria-expanded="false"
+                                  aria-controls="collapseTopic{{ t.topic_id }}">
+                            <div class="w-100 d-flex justify-content-between align-items-center">
+                              <div>
+                                <strong>{{ t.topic_title }}</strong>
+                              </div>
+                              <span class="badge bg-info text-dark">
+                                Subtopics: {{ t.subtopics|length if t.subtopics else 0 }}
+                              </span>
+                            </div>
+                          </button>
+                        </h2>
+
+                        <div id="collapseTopic{{ t.topic_id }}"
+                             class="accordion-collapse collapse"
+                             aria-labelledby="headingTopic{{ t.topic_id }}"
+                             data-bs-parent="#topicsAccordion{{ m.module_id }}">
+                          <div class="accordion-body">
+
+                            <!-- Delete Topic -->
+                            <form method="POST" action="{{ url_for('instructor.delete_topic', topic_id=t.topic_id) }}"
+                                  onsubmit="return confirm('Delete this topic?');"
+                                  class="mb-3">
+                              <button class="btn btn-sm btn-outline-danger" type="submit">Delete Topic</button>
+                            </form>
+
+                            <!-- ✅ Add Subtopic + first content (Notes/Video/Book) -->
+                            <div class="card mb-3">
+                              <div class="card-header">
+                                <strong>Add Subtopic + Content</strong>
+                              </div>
+                              <div class="card-body">
+
+                                <form method="POST"
+                                      action="{{ url_for('instructor.add_subtopic', topic_id=t.topic_id) }}"
+                                      class="row g-2 align-items-end">
+
+                                  <div class="col-md-4">
+                                    <label class="form-label mb-1">Subtopic Title</label>
+                                    <input class="form-control" name="subtopic_title" placeholder="e.g., Input/Output" required>
+                                  </div>
+
+                                  <div class="col-md-2">
+                                    <label class="form-label mb-1">Content Type</label>
+                                    <select class="form-select subtopic-type-select" name="content_type">
+                                      <option value="" selected>No content now</option>
+                                      <option value="video">🎥 Video</option>
+                                      <option value="notes">📄 Notes</option>
+                                      <option value="book">📘 Online Book</option>
+                                    </select>
+                                  </div>
+
+                                  <div class="col-md-3">
+                                    <label class="form-label mb-1">Content Title</label>
+                                    <input class="form-control" name="content_title" placeholder="e.g., Intro video">
+                                  </div>
+
+                                  <div class="col-md-3">
+                                    <label class="form-label mb-1">URL</label>
+                                    <input class="form-control" name="url" placeholder="https://...">
+                                  </div>
+
+                                  <div class="col-md-2 subtopic-video-only d-none">
+                                    <label class="form-label mb-1">Minutes</label>
+                                    <input class="form-control" name="duration_minutes" type="number" min="1" placeholder="12">
+                                  </div>
+
+                                  <div class="col-md-2 subtopic-notes-only d-none">
+                                    <label class="form-label mb-1">Format</label>
+                                    <input class="form-control" name="file_format" placeholder="PDF">
+                                  </div>
+
+                                  <div class="col-md-2 d-grid">
+                                    <button class="btn btn-secondary" type="submit">Add</button>
+                                  </div>
+
+                                </form>
+
+                                <div class="text-muted small mt-2">
+                                  Tip: Select "No content now" if you only want to create the subtopic.
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- Subtopics list -->
+                            {% if t.subtopics and t.subtopics|length > 0 %}
+                              <div class="accordion" id="subtopicsAccordion{{ t.topic_id }}">
+                                {% for st in t.subtopics|sort(attribute='subtopic_order') %}
+                                  <div class="accordion-item mb-2">
+                                    <h2 class="accordion-header" id="headingSub{{ st.subtopic_id }}">
+                                      <button class="accordion-button collapsed" type="button"
+                                              data-bs-toggle="collapse"
+                                              data-bs-target="#collapseSub{{ st.subtopic_id }}"
+                                              aria-expanded="false"
+                                              aria-controls="collapseSub{{ st.subtopic_id }}">
+                                        <div class="w-100 d-flex justify-content-between align-items-center">
+                                          <div><strong>{{ st.subtopic_title }}</strong></div>
+                                          <span class="badge bg-warning text-dark">
+                                            Contents: {{ st.contents|length if st.contents else 0 }}
+                                          </span>
+                                        </div>
+                                      </button>
+                                    </h2>
+
+                                    <div id="collapseSub{{ st.subtopic_id }}"
+                                         class="accordion-collapse collapse"
+                                         aria-labelledby="headingSub{{ st.subtopic_id }}"
+                                         data-bs-parent="#subtopicsAccordion{{ t.topic_id }}">
+                                      <div class="accordion-body">
+
+                                        <form method="POST" action="{{ url_for('instructor.delete_subtopic', subtopic_id=st.subtopic_id) }}"
+                                              onsubmit="return confirm('Delete this subtopic?');"
+                                              class="mb-3">
+                                          <button class="btn btn-sm btn-outline-danger" type="submit">Delete Subtopic</button>
+                                        </form>
+
+                                        <!-- Add Content (NO ORDER) -->
+                                        <div class="card mb-3">
+                                          <div class="card-header">
+                                            <strong>Add Content</strong>
+                                          </div>
+                                          <div class="card-body">
+                                            <form method="POST"
+                                                  action="{{ url_for('instructor.add_content', subtopic_id=st.subtopic_id) }}"
+                                                  class="row g-2 align-items-end">
+
+                                              <div class="col-md-3">
+                                                <label class="form-label mb-1">Type</label>
+                                                <select class="form-select content-type-select" name="content_type" required>
+                                                  <option value="" selected disabled>Select</option>
+                                                  <option value="video">🎥 Video</option>
+                                                  <option value="notes">📄 Notes</option>
+                                                  <option value="book">📘 Online Book</option>
+                                                </select>
+                                              </div>
+
+                                              <div class="col-md-4">
+                                                <label class="form-label mb-1">Title</label>
+                                                <input class="form-control" name="title" placeholder="e.g., Intro video" required>
+                                              </div>
+
+                                              <div class="col-md-5">
+                                                <label class="form-label mb-1">URL</label>
+                                                <input class="form-control" name="url" placeholder="https://..." required>
+                                              </div>
+
+                                              <div class="col-md-3 video-only d-none">
+                                                <label class="form-label mb-1">Minutes</label>
+                                                <input class="form-control" name="duration_minutes" type="number" min="1" placeholder="12">
+                                              </div>
+
+                                              <div class="col-md-3 notes-only d-none">
+                                                <label class="form-label mb-1">Format</label>
+                                                <input class="form-control" name="file_format" placeholder="PDF">
+                                              </div>
+
+                                              <div class="col-md-2 d-grid">
+                                                <button class="btn btn-success" type="submit">Add</button>
+                                              </div>
+
+                                            </form>
+                                          </div>
+                                        </div>
+
+                                        <!-- Content list -->
+                                        {% if st.contents and st.contents|length > 0 %}
+                                          <ul class="list-group">
+                                            {% for c in st.contents|sort(attribute='content_order') %}
+                                              <li class="list-group-item d-flex justify-content-between align-items-start">
+                                                <div class="me-3">
+                                                  <div class="d-flex align-items-center flex-wrap gap-2">
+                                                    <strong>{{ c.title }}</strong>
+
+                                                    {% if c.content_type == 'video' %}
+                                                      <span class="badge bg-primary">Video</span>
+                                                    {% elif c.content_type == 'notes' %}
+                                                      <span class="badge bg-success">Notes</span>
+                                                    {% elif c.content_type == 'book' %}
+                                                      <span class="badge bg-warning text-dark">Online Book</span>
+                                                    {% endif %}
+                                                  </div>
+
+                                                  <div class="small mt-1">
+                                                    <a href="{{ c.url }}" target="_blank">{{ c.url }}</a>
+                                                  </div>
+
+                                                  {% if c.content_type == 'video' and c.duration_minutes %}
+                                                    <div class="small text-muted">⏱ {{ c.duration_minutes }} min</div>
+                                                  {% endif %}
+
+                                                  {% if c.content_type == 'notes' %}
+                                                    <div class="small text-muted">📄 {{ c.file_format or 'PDF' }}</div>
+                                                  {% endif %}
+                                                </div>
+
+                                                <form method="POST" action="{{ url_for('instructor.delete_content', content_id=c.content_id) }}"
+                                                      onsubmit="return confirm('Delete this content?');">
+                                                  <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                                                </form>
+                                              </li>
+                                            {% endfor %}
+                                          </ul>
+                                        {% else %}
+                                          <div class="text-muted">No content added yet.</div>
+                                        {% endif %}
+
+                                      </div>
+                                    </div>
+                                  </div>
+                                {% endfor %}
+                              </div>
+                            {% else %}
+                              <div class="text-muted">No subtopics added yet.</div>
+                            {% endif %}
+
+                          </div>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  <div class="text-muted">No topics added yet.</div>
+                {% endif %}
+
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+
+      </div>
+    {% else %}
+      <div class="text-muted">No modules created yet.</div>
+    {% endif %}
+
+    <script>
+      // For Add Content inside a subtopic
+      document.addEventListener("change", function (e) {
+        if (e.target.classList.contains("content-type-select")) {
+          const form = e.target.closest("form");
+          const videoOnly = form.querySelector(".video-only");
+          const notesOnly = form.querySelector(".notes-only");
+
+          if (videoOnly) videoOnly.classList.add("d-none");
+          if (notesOnly) notesOnly.classList.add("d-none");
+
+          if (e.target.value === "video" && videoOnly) videoOnly.classList.remove("d-none");
+          if (e.target.value === "notes" && notesOnly) notesOnly.classList.remove("d-none");
+        }
+
+        // For Add Subtopic + Content block
+        if (e.target.classList.contains("subtopic-type-select")) {
+          const form = e.target.closest("form");
+          const videoOnly = form.querySelector(".subtopic-video-only");
+          const notesOnly = form.querySelector(".subtopic-notes-only");
+
+          if (videoOnly) videoOnly.classList.add("d-none");
+          if (notesOnly) notesOnly.classList.add("d-none");
+
+          if (e.target.value === "video" && videoOnly) videoOnly.classList.remove("d-none");
+          if (e.target.value === "notes" && notesOnly) notesOnly.classList.remove("d-none");
+        }
+      });
+    </script>
+
+  {% endif %}
+
 </div>
+
 {% endblock %}
