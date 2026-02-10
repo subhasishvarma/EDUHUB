@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block content %}
 
 {% block title %}{{ course.course_name }} | Instructor | EduHub{% endblock %}
 {% block main_class %}container{% endblock %}
@@ -106,7 +107,6 @@
 
 <div class="course-tabs">
 
-  <!-- Flash messages -->
   {% with messages = get_flashed_messages() %}
     {% if messages %}
       <div class="mb-3">
@@ -117,7 +117,6 @@
     {% endif %}
   {% endwith %}
 
-  <!-- Tabs -->
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item">
       <a class="nav-link {% if tab != 'students' %}active{% endif %}"
@@ -134,7 +133,6 @@
   </ul>
 
   {% if tab == 'students' %}
-    <!-- ========================= STUDENTS TAB ========================= -->
     <div class="instructor-section-card">
       <h5 class="mb-3"><i class="fas fa-user-graduate me-2"></i>Enrolled Students</h5>
       {% if enrollments and enrollments|length > 0 %}
@@ -156,7 +154,6 @@
                   </td>
                   <td>{{ enr.student.email }}</td>
                   <td>
-                    <!-- Grade form -->
                     <form method="POST"
                           action="{{ url_for('instructor.grade_student', course_id=course.course_id) }}"
                           class="row g-2 align-items-center mb-2">
@@ -180,7 +177,6 @@
                       </div>
                     </form>
 
-                    <!-- Deregistration request form -->
                     <form method="POST"
                           action="{{ url_for('instructor.request_deregistration', course_id=course.course_id) }}"
                           class="row g-2 align-items-center">
@@ -210,9 +206,6 @@
     </div>
 
   {% else %}
-    <!-- ========================= MODULES TAB ========================= -->
-
-    <!-- Add Module (NO ORDER) -->
     <div class="instructor-section-card">
       <h5 class="mb-3"><i class="fas fa-layer-group me-2"></i>Modules</h5>
       <div class="card mb-3 border-0 shadow-sm rounded-4">
@@ -229,7 +222,6 @@
       </div>
     </div>
 
-    <!-- Modules list -->
     {% if modules and modules|length > 0 %}
       <div class="accordion" id="modulesAccordion">
 
@@ -258,7 +250,6 @@
                  data-bs-parent="#modulesAccordion">
               <div class="accordion-body">
 
-                <!-- Delete Module -->
                 <form method="POST" action="{{ url_for('instructor.delete_module', module_id=m.module_id) }}"
                       onsubmit="return confirm('Delete this module? This will delete everything inside it.');"
                       class="mb-3">
@@ -267,7 +258,6 @@
                   </button>
                 </form>
 
-                <!-- Add Topic (NO ORDER) -->
                 <div class="card mb-3 border-0 shadow-sm rounded-4">
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -284,7 +274,6 @@
                   </div>
                 </div>
 
-                <!-- Topics list -->
                 {% if m.topics and m.topics|length > 0 %}
                   <div class="accordion" id="topicsAccordion{{ m.module_id }}">
                     {% for t in m.topics|sort(attribute='topic_order') %}
@@ -312,7 +301,6 @@
                              data-bs-parent="#topicsAccordion{{ m.module_id }}">
                           <div class="accordion-body">
 
-                            <!-- Delete Topic -->
                             <form method="POST" action="{{ url_for('instructor.delete_topic', topic_id=t.topic_id) }}"
                                   onsubmit="return confirm('Delete this topic?');"
                                   class="mb-3">
@@ -321,7 +309,6 @@
                               </button>
                             </form>
 
-                            <!-- Assignments for this topic -->
                             <div class="card mb-3 border-0 shadow-sm rounded-4">
                               <div class="card-header">
                                 <strong>Assignments</strong>
@@ -384,7 +371,6 @@
                               </div>
                             </div>
 
-                            <!-- ✅ Add Subtopic + first content (Notes/Video/Book) -->
                             <div class="card mb-3 border-0 shadow-sm rounded-4">
                               <div class="card-header">
                                 <strong>Add Subtopic + Content</strong>
@@ -440,7 +426,6 @@
                               </div>
                             </div>
 
-                            <!-- Subtopics list -->
                             {% if t.subtopics and t.subtopics|length > 0 %}
                               <div class="accordion" id="subtopicsAccordion{{ t.topic_id }}">
                                 {% for st in t.subtopics|sort(attribute='subtopic_order') %}
@@ -472,7 +457,6 @@
                                           <button class="btn btn-sm btn-outline-danger" type="submit">Delete Subtopic</button>
                                         </form>
 
-                                        <!-- Add Content (NO ORDER) -->
                                         <div class="card mb-3">
                                           <div class="card-header">
                                             <strong>Add Content</strong>
@@ -520,7 +504,6 @@
                                           </div>
                                         </div>
 
-                                        <!-- Content list -->
                                         {% if st.contents and st.contents|length > 0 %}
                                           <ul class="list-group">
                                             {% for c in st.contents|sort(attribute='content_order') %}

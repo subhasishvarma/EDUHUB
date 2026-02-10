@@ -750,13 +750,21 @@
                 <div class="nav-buttons ms-auto d-flex gap-2 align-items-center">
                 {% if current_user.is_authenticated %}
 
+<<<<<<< HEAD
                     {% set role = current_user.role | role_value %}
 
+=======
+                    {% set role = current_user.role.value if current_user.role and current_user.role.value else (current_user.role | string) %}
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 
                     {% if role == 'admin' %}
                         <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-dark">Admin Dashboard</a>
                     {% elif role == 'student' %}
                         <a href="{{ url_for('student.dashboard') }}" class="btn btn-outline-dark">My Dashboard</a>
+<<<<<<< HEAD
+=======
+                        <a href="{{ url_for('student.grades') }}" class="btn btn-outline-dark">Grades</a>
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
                     {% elif role == 'instructor' %}
                         <a href="{{ url_for('instructor.dashboard') }}" class="btn btn-outline-dark">Instructor Dashboard</a>
                     {% elif role == 'analyst' %}
@@ -861,4 +869,8 @@ document.querySelectorAll('.institution-card, .feature-card').forEach(function(e
 </script>
 {% block scripts %}{% endblock %}
 </body>
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)

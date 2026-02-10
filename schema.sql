@@ -2,7 +2,10 @@
 -- SAFE / IDEMPOTENT SCHEMA (WON'T DROP DATA)
 -- - Creates types only if not exists
 -- - Creates tables only if not exists
+<<<<<<< HEAD
 -- - Adds columns only if not exists (via DO blocks)
+=======
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 -- - Creates views using OR REPLACE
 -- ==========================================================
 
@@ -22,7 +25,11 @@ BEGIN
 END $$;
 
 -- 2) USERS (Superclass)
+<<<<<<< HEAD
 CREATE TABLE IF NOT EXISTS users (
+=======
+CREATE TABLE IF NOT EXISTS Users (
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -34,6 +41,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- 3) Admin
+<<<<<<< HEAD
 CREATE TABLE IF NOT EXISTS admins (
     user_id INT PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE
 );
@@ -46,20 +54,43 @@ CREATE TABLE IF NOT EXISTS analysts (
 -- 5) Student
 CREATE TABLE IF NOT EXISTS students (
     user_id INT PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
+=======
+CREATE TABLE IF NOT EXISTS Admins (
+    user_id INT PRIMARY KEY REFERENCES Users(user_id) ON DELETE CASCADE
+);
+
+-- 4) Analyst
+CREATE TABLE IF NOT EXISTS Analysts (
+    user_id INT PRIMARY KEY REFERENCES Users(user_id) ON DELETE CASCADE
+);
+
+-- 5) Student
+CREATE TABLE IF NOT EXISTS Students (
+    user_id INT PRIMARY KEY REFERENCES Users(user_id) ON DELETE CASCADE,
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
     age INT CHECK (age > 0),
     skill_level VARCHAR(50),
     country VARCHAR(100)
 );
 
 -- 6) Instructor
+<<<<<<< HEAD
 CREATE TABLE IF NOT EXISTS instructors (
     user_id INT PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
+=======
+CREATE TABLE IF NOT EXISTS Instructors (
+    user_id INT PRIMARY KEY REFERENCES Users(user_id) ON DELETE CASCADE,
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
     phone_number VARCHAR(20),
     bio VARCHAR(500)
 );
 
 -- 7) Universities
+<<<<<<< HEAD
 CREATE TABLE IF NOT EXISTS universities (
+=======
+CREATE TABLE IF NOT EXISTS Universities (
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
     uni_id SERIAL PRIMARY KEY,
     uni_name VARCHAR(255) UNIQUE NOT NULL,
     city VARCHAR(100),
@@ -68,20 +99,33 @@ CREATE TABLE IF NOT EXISTS universities (
 );
 
 -- 8) Courses
+<<<<<<< HEAD
 CREATE TABLE IF NOT EXISTS courses (
+=======
+CREATE TABLE IF NOT EXISTS Courses (
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
     course_id SERIAL PRIMARY KEY,
     course_name VARCHAR(255) UNIQUE NOT NULL,
     duration_weeks INT,
     c_type course_type,
+<<<<<<< HEAD
     uni_id INT NOT NULL REFERENCES universities(uni_id) ON DELETE CASCADE
 );
 
 -- 9) Topics (legacy - keep)
 CREATE TABLE IF NOT EXISTS topics (
+=======
+    uni_id INT NOT NULL REFERENCES Universities(uni_id) ON DELETE CASCADE
+);
+
+-- 9) Topics
+CREATE TABLE IF NOT EXISTS Topics (
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
     topic_id SERIAL PRIMARY KEY,
     topic_name VARCHAR(100) NOT NULL
 );
 
+<<<<<<< HEAD
 -- 10) Course_Topics (legacy - keep)
 CREATE TABLE IF NOT EXISTS course_topics (
     course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
@@ -91,11 +135,23 @@ CREATE TABLE IF NOT EXISTS course_topics (
 
 -- 11) TextBooks (legacy - keep)
 CREATE TABLE IF NOT EXISTS textbooks (
+=======
+-- 10) Course_Topics
+CREATE TABLE IF NOT EXISTS Course_Topics (
+    course_id INT REFERENCES Courses(course_id) ON DELETE CASCADE,
+    topic_id INT REFERENCES Topics(topic_id) ON DELETE CASCADE,
+    PRIMARY KEY (course_id, topic_id)
+);
+
+-- 11) TextBooks
+CREATE TABLE IF NOT EXISTS TextBooks (
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
     book_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     author VARCHAR(255)
 );
 
+<<<<<<< HEAD
 -- 12) Course_TextBooks (legacy - keep)
 CREATE TABLE IF NOT EXISTS course_textbooks (
     course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
@@ -107,12 +163,26 @@ CREATE TABLE IF NOT EXISTS course_textbooks (
 CREATE TABLE IF NOT EXISTS enrollments (
     student_id INT REFERENCES students(user_id) ON DELETE CASCADE,
     course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
+=======
+-- 12) Course_TextBooks
+CREATE TABLE IF NOT EXISTS Course_TextBooks (
+    course_id INT REFERENCES Courses(course_id) ON DELETE CASCADE,
+    book_id INT REFERENCES TextBooks(book_id) ON DELETE CASCADE,
+    PRIMARY KEY (course_id, book_id)
+);
+
+-- 13) Enrollments
+CREATE TABLE IF NOT EXISTS Enrollments (
+    student_id INT REFERENCES Students(user_id) ON DELETE CASCADE,
+    course_id INT REFERENCES Courses(course_id) ON DELETE CASCADE,
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
     enrollment_date DATE DEFAULT CURRENT_DATE,
     grade DECIMAL(5, 2) CHECK (grade >= 0 AND grade <= 100),
     due_by DATE,
     PRIMARY KEY (student_id, course_id)
 );
 
+<<<<<<< HEAD
 -- 13b) SAFE ALTER: add grading columns if missing
 DO $$
 BEGIN
@@ -143,6 +213,18 @@ CREATE TABLE IF NOT EXISTS course_instructors (
 -- 15) CourseVideos (legacy - keep for now)
 CREATE TABLE IF NOT EXISTS coursevideos (
     course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
+=======
+-- 14) Course_Instructors
+CREATE TABLE IF NOT EXISTS Course_Instructors (
+    instructor_id INT REFERENCES Instructors(user_id) ON DELETE CASCADE,
+    course_id INT REFERENCES Courses(course_id) ON DELETE CASCADE,
+    PRIMARY KEY (instructor_id, course_id)
+);
+
+-- 15) CourseVideos
+CREATE TABLE IF NOT EXISTS CourseVideos (
+    course_id INT REFERENCES Courses(course_id) ON DELETE CASCADE,
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
     video_url VARCHAR(500) NOT NULL,
     title VARCHAR(255) NOT NULL,
     duration_minutes INT NOT NULL,
@@ -150,18 +232,30 @@ CREATE TABLE IF NOT EXISTS coursevideos (
     PRIMARY KEY (course_id, video_url)
 );
 
+<<<<<<< HEAD
 -- 16) CourseNotes (legacy - keep for now)
 CREATE TABLE IF NOT EXISTS coursenotes (
     course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
+=======
+-- 16) CourseNotes
+CREATE TABLE IF NOT EXISTS CourseNotes (
+    course_id INT REFERENCES Courses(course_id) ON DELETE CASCADE,
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
     note_url VARCHAR(500) NOT NULL,
     title VARCHAR(255) NOT NULL,
     format VARCHAR(10) DEFAULT 'PDF',
     PRIMARY KEY (course_id, note_url)
 );
 
+<<<<<<< HEAD
 -- 17) CourseOnlineBooks (legacy - keep for now)
 CREATE TABLE IF NOT EXISTS courseonlinebooks (
     course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
+=======
+-- 17) CourseOnlineBooks
+CREATE TABLE IF NOT EXISTS CourseOnlineBooks (
+    course_id INT REFERENCES Courses(course_id) ON DELETE CASCADE,
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
     book_url VARCHAR(500) NOT NULL,
     title VARCHAR(255) NOT NULL,
     page_count INT,
@@ -169,6 +263,7 @@ CREATE TABLE IF NOT EXISTS courseonlinebooks (
 );
 
 -- ==========================================================
+<<<<<<< HEAD
 -- NEW STRUCTURE: Course -> Modules -> Topics -> Subtopics -> Contents
 -- IMPORTANT: table names are lowercase to match SQLAlchemy __tablename__
 -- ==========================================================
@@ -268,6 +363,8 @@ BEGIN
 END $$;
 
 -- ==========================================================
+=======
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 -- VIEWS (safe: updates view definition without deleting data)
 -- ==========================================================
 
@@ -280,8 +377,13 @@ SELECT
     u.uni_name AS university_name,
     u.city AS university_city,
     u.country AS university_country
+<<<<<<< HEAD
 FROM courses c
 JOIN universities u ON c.uni_id = u.uni_id;
+=======
+FROM Courses c
+JOIN Universities u ON c.uni_id = u.uni_id;
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 
 CREATE OR REPLACE VIEW instructor_assigned_courses AS
 SELECT
@@ -291,17 +393,30 @@ SELECT
     c.duration_weeks,
     c.c_type,
     u.uni_name AS university_name
+<<<<<<< HEAD
 FROM course_instructors ci
 JOIN courses c ON ci.course_id = c.course_id
 JOIN universities u ON c.uni_id = u.uni_id;
 
 -- Average should prefer marks, fallback to grade (so both work)
+=======
+FROM Course_Instructors ci
+JOIN Courses c ON ci.course_id = c.course_id
+JOIN Universities u ON c.uni_id = u.uni_id;
+
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 CREATE OR REPLACE VIEW course_statistics AS
 SELECT
     c.course_id,
     c.course_name,
     COUNT(e.student_id) AS total_enrollments,
+<<<<<<< HEAD
     AVG(COALESCE(e.marks, e.grade)) AS average_grade
 FROM courses c
 LEFT JOIN enrollments e ON c.course_id = e.course_id
+=======
+    AVG(e.grade) AS average_grade
+FROM Courses c
+LEFT JOIN Enrollments e ON c.course_id = e.course_id
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 GROUP BY c.course_id, c.course_name;

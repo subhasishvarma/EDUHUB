@@ -4,6 +4,7 @@ from sqlalchemy import Enum, func
 
 db = SQLAlchemy()
 
+# Enums
 user_role_enum = Enum('admin', 'analyst', 'student', 'instructor', name='user_role')
 course_type_enum = Enum('degree', 'diploma', 'certificate', name='course_type')
 
