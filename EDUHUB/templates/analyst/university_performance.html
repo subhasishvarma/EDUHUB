@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}University Performance | EduHub{% endblock %}
+{% block main_class %}container-fluid{% endblock %}
+
+{% block extra_css %}
+<style>
+  .page-header {
+    background: linear-gradient(135deg, var(--accent), #4f46e5);
+    color: white;
+    padding: 60px 0 40px;
+    margin-bottom: 35px;
+    border-radius: 0 0 30px 30px;
+  }
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+  .panel {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 16px 50px rgba(0,0,0,0.08);
+    padding: 18px;
+  }
+  .table thead th { border-top: none !important; font-weight: 800; }
+  .small-chip {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:6px 10px; border-radius:999px;
+    border:1px solid var(--border-subtle);
+    background:#fafafa; font-size:.85rem; font-weight:700;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container-fluid">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <div>
+        <div class="page-title">University Performance</div>
+        <div style="opacity:.92">Compare universities by courses, students, and average marks</div>
+      </div>
+      <div class="d-flex gap-2">
+        <a class="btn btn-light" href="{{ url_for('analyst.dashboard') }}">
+          <i class="fas fa-home me-2"></i>Dashboard
+        </a>
+        <a class="btn btn-outline-light" href="{{ url_for('analyst.course_analysis') }}">
+          <i class="fas fa-book me-2"></i>Courses
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid pb-5">
+  <div class="row g-3">
+    <div class="col-lg-5">
+      <div class="panel h-100">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+          <div>
+            <div class="fw-bold" style="font-size:1.1rem;">Students by University</div>
+            <div class="text-muted small">Pie chart (unique enrolled students)</div>
+          </div>
+          <span class="small-chip"><i class="fas fa-chart-pie"></i> Pie</span>
+        </div>
+        <div style="height: 360px;">
+          <canvas id="uniPie"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <div class="panel">
+        <div class="fw-bold mb-1" style="font-size:1.1rem;">University Summary</div>
+        <div class="text-muted small mb-3">Courses count, student reach, and average marks</div>
+
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>University</th>
+                <th class="text-end">Courses</th>
+                <th class="text-end">Students</th>
+                <th class="text-end">Avg Marks</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for u in universities %}
+              <tr>
+                <td class="fw-bold">{{ u.uni_name }}</td>
+                <td class="text-end">{{ u.total_courses or 0 }}</td>
+                <td class="text-end">{{ u.total_students or 0 }}</td>
+                <td class="text-end">
+                  {% if u.avg_marks is not none %}
+                    {{ u.avg_marks }}
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel mt-3">
+        <div class="fw-bold mb-1" style="font-size:1.1rem;">Course Details (by University)</div>
+        <div class="text-muted small mb-3">Includes students, avg marks, due date, and instructors list</div>
+
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>University</th>
+                <th>Course</th>
+                <th class="text-end">Weeks</th>
+                <th class="text-end">Students</th>
+                <th class="text-end">Avg</th>
+                <th class="text-end">Due</th>
+                <th>Instructors</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in courses %}
+              <tr>
+                <td class="text-muted">
+                  {% for u in universities %}
+                    {% if u.uni_id == c.uni_id %}
+                      {{ u.uni_name }}
+                    {% endif %}
+                  {% endfor %}
+                </td>
+                <td class="fw-bold">{{ c.course_name }}</td>
+                <td class="text-end">{{ c.duration_weeks }}</td>
+                <td class="text-end">{{ c.students or 0 }}</td>
+                <td class="text-end">{% if c.avg_marks is not none %}{{ c.avg_marks }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                <td class="text-end">
+                  {% if c.due_by %}
+                    {{ c.due_by }}
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                <td class="text-muted">
+                  {% set names = [] %}
+                  {% for ins in instructors %}
+                    {% if ins.course_id == c.course_id %}
+                      {% set _ = names.append(ins.first_name ~ ' ' ~ ins.last_name) %}
+                    {% endif %}
+                  {% endfor %}
+                  {% if names|length > 0 %}
+                    {{ names|join(', ') }}
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+              {% if courses|length == 0 %}
+              <tr>
+                <td colspan="7" class="text-muted text-center py-4">No courses available.</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const labels = [];
+  const values = [];
+  {% for u in universities %}
+    labels.push({{ u.uni_name|tojson }});
+    values.push({{ (u.total_students or 0) }});
+  {% endfor %}
+
+  const ctx = document.getElementById('uniPie');
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels,
+      datasets: [{ data: values, borderWidth: 0 }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+</script>
+{% endblock %}

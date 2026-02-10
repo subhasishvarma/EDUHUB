@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up | EduHub{% endblock %}
+
+{% block main_class %}container{% endblock %}
+
+{% block content %}
+<section class="auth-hero">
+    <div class="auth-hero-doodles">
+        <i class="fas fa-graduation-cap doodle-1"></i>
+        <i class="fas fa-book doodle-2"></i>
+        <i class="fas fa-pencil-alt doodle-3"></i>
+        <i class="fas fa-certificate doodle-4"></i>
+        <i class="fas fa-star doodle-5"></i>
+        <i class="fas fa-lightbulb doodle-6"></i>
+    </div>
+    <div class="container position-relative">
+        <h1>Join <span class="highlight">EduHub</span></h1>
+        <p class="auth-tagline">Start learning from the world's best universities</p>
+    </div>
+</section>
+<div class="row justify-content-center py-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="page-card">
+            <h2 class="card-title mb-1" style="font-size: 1.75rem;">Sign Up</h2>
+            <p class="text-muted mb-4">Join EduHub and start learning from the world's best</p>
+
+            <form method="POST" action="{{ url_for('auth.signup_post') }}">
+                <div class="mb-3">
+                    <label for="role" class="form-label">Select Your Role</label>
+                    <select class="form-select" id="role" name="role" onchange="showRoleFields()">
+                        <option value="">-- Please choose an option --</option>
+                        <option value="student">Student</option>
+                        <option value="instructor">Instructor</option>
+                        <option value="admin">Admin</option>
+                        <option value="analyst">Analyst</option>
+                    </select>
+                </div>
+
+                <div id="common-fields" style="display: none;">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required placeholder="johndoe">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="email" name="email" required placeholder="you@example.com">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required placeholder="••••••••">
+                    </div>
+                    <div class="mb-3">
+                        <label for="first_name" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" required placeholder="John">
+                    </div>
+                    <div class="mb-3">
+                        <label for="last_name" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Doe">
+                    </div>
+                </div>
+
+                <div id="student-fields" style="display: none;">
+                    <p class="text-muted small mb-3">Skill level will be set to <strong>Beginner</strong>.</p>
+                    <div class="mb-3">
+                        <label for="age" class="form-label">Age</label>
+                        <input type="number" class="form-control" id="age" name="age" placeholder="20" min="1" max="120">
+                    </div>
+                    <div class="mb-3">
+                        <label for="country" class="form-label">Country</label>
+                        <input type="text" class="form-control" id="country" name="country" placeholder="India">
+                    </div>
+                </div>
+
+                <div id="instructor-fields" style="display: none;">
+                    <div class="mb-3">
+                        <label for="phone_number" class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" id="phone_number" name="phone_number" placeholder="+91 98765 43210">
+                    </div>
+                    <div class="mb-3">
+                        <label for="bio" class="form-label">Bio</label>
+                        <textarea class="form-control" id="bio" name="bio" rows="3" placeholder="Tell us about your expertise..."></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-eduhub-primary w-100 mb-3" id="submit-btn" style="display: none;">
+                    <i class="fas fa-user-plus me-2"></i>Sign Up
+                </button>
+            </form>
+
+            <p class="mt-4 mb-0 text-center text-muted">
+                Already have an account? <a href="{{ url_for('auth.login') }}" class="text-eduhub">Log in</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+function showRoleFields() {
+    var role = document.getElementById('role').value;
+    var commonFields = document.getElementById('common-fields');
+    var studentFields = document.getElementById('student-fields');
+    var instructorFields = document.getElementById('instructor-fields');
+    var submitBtn = document.getElementById('submit-btn');
+
+    studentFields.style.display = 'none';
+    instructorFields.style.display = 'none';
+
+    if (role) {
+        commonFields.style.display = 'block';
+        submitBtn.style.display = 'block';
+        if (role === 'student') {
+            studentFields.style.display = 'block';
+        } else if (role === 'instructor') {
+            instructorFields.style.display = 'block';
+        }
+    } else {
+        commonFields.style.display = 'none';
+        submitBtn.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

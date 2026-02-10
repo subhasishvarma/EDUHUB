@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Instructors | Admin | EduHub{% endblock %}
+
+{% block main_class %}container{% endblock %}
+
+{% block extra_css %}
+<style>
+.admin-page-header { padding: 30px 0 20px; }
+.admin-page-header h1 { font-family: 'Playfair Display', serif; font-size: 1.75rem; font-weight: 800; color: var(--primary); }
+.admin-section { background: white; border-radius: 24px; padding: 32px; border: 2px solid var(--border-subtle); margin-bottom: 24px; }
+.admin-section h3 { font-size: 1.15rem; font-weight: 700; color: var(--primary); margin-bottom: 20px; }
+.admin-table { width: 100%; border-collapse: collapse; }
+.admin-table th { text-align: left; padding: 12px 16px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); border-bottom: 2px solid var(--border-subtle); }
+.admin-table td { padding: 14px 16px; border-bottom: 1px solid var(--border-subtle); }
+.admin-table tr:hover td { background: var(--accent-soft); }
+.admin-table .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+.add-prompt { margin-bottom: 16px; }
+.add-form { display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-subtle); }
+.add-form.show { display: block; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-page-header">
+    <a href="{{ url_for('admin.dashboard') }}" class="text-eduhub text-decoration-none mb-2 d-inline-block"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</a>
+    <h1><i class="fas fa-chalkboard-teacher me-2"></i>Instructors</h1>
+</div>
+
+<div class="admin-section">
+    <h3>All Instructors</h3>
+    {% if items %}
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr><th>Name</th><th>Email</th><th>Username</th><th>Phone</th><th>Bio</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for i in items %}
+                <tr>
+                    <td><strong>{{ i.first_name }} {{ i.last_name or '' }}</strong></td>
+                    <td>{{ i.email }}</td>
+                    <td>@{{ i.username }}</td>
+                    <td>{{ i.phone_number or '—' }}</td>
+                    <td>{{ (i.bio or '—')[:60] }}{% if i.bio and i.bio|length > 60 %}...{% endif %}</td>
+                    <td>
+                        <form method="POST" class="d-inline" onsubmit="return confirm('Remove this instructor from the platform? They will be unassigned from all courses.');">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="instructor_id" value="{{ i.user_id }}">
+                            <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash-alt me-1"></i>Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted mb-0">No instructors in the database yet.</p>
+    {% endif %}
+</div>
+
+<div class="admin-section">
+    <h3>Add New Instructor</h3>
+    <p class="text-muted mb-3">Do you want to add a new instructor to the database?</p>
+    <div class="add-prompt">
+        <button type="button" class="btn btn-eduhub-primary" onclick="document.getElementById('add-form').classList.add('show')">
+            <i class="fas fa-plus me-2"></i>Yes, Add Instructor
+        </button>
+    </div>
+    <div id="add-form" class="add-form">
+        <form method="POST">
+            <input type="hidden" name="action" value="add">
+            <div class="row g-3">
+                <div class="col-md-6"><label class="form-label">Username *</label><input type="text" name="username" class="form-control" required></div>
+                <div class="col-md-6"><label class="form-label">Email *</label><input type="email" name="email" class="form-control" required></div>
+                <div class="col-md-6"><label class="form-label">Password *</label><input type="password" name="password" class="form-control" required></div>
+                <div class="col-md-6"><label class="form-label">First Name *</label><input type="text" name="first_name" class="form-control" required></div>
+                <div class="col-md-6"><label class="form-label">Last Name</label><input type="text" name="last_name" class="form-control"></div>
+                <div class="col-md-6"><label class="form-label">Phone Number</label><input type="text" name="phone_number" class="form-control"></div>
+                <div class="col-12"><label class="form-label">Bio</label><textarea name="bio" class="form-control" rows="3"></textarea></div>
+            </div>
+            <button type="submit" class="btn btn-eduhub-primary mt-3"><i class="fas fa-save me-2"></i>Add Instructor</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

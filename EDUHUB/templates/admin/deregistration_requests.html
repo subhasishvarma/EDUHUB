@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Deregistration Requests | Admin | EduHub{% endblock %}
+
+{% block main_class %}container{% endblock %}
+
+{% block extra_css %}
+<style>
+.admin-page-header { padding: 30px 0 20px; }
+.admin-page-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+.admin-section {
+    background: white;
+    border-radius: 24px;
+    padding: 32px;
+    border: 2px solid var(--border-subtle);
+    margin-bottom: 24px;
+}
+.admin-section h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 20px;
+}
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.admin-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--border-subtle);
+}
+.admin-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: top;
+}
+.admin-table tr:hover td {
+    background: var(--accent-soft);
+}
+.status-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.status-pill-pending {
+    background: rgba(251, 191, 36, 0.15);
+    color: #92400e;
+}
+.status-pill-approved {
+    background: rgba(34, 197, 94, 0.15);
+    color: #166534;
+}
+.status-pill-rejected {
+    background: rgba(248, 113, 113, 0.15);
+    color: #991b1b;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-page-header">
+    <a href="{{ url_for('admin.dashboard') }}" class="text-eduhub text-decoration-none mb-2 d-inline-block">
+        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+    </a>
+    <h1><i class="fas fa-user-minus me-2"></i>Deregistration Requests</h1>
+</div>
+
+<div class="admin-section">
+    <h3>Pending & Processed Requests</h3>
+    {% if items %}
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Requested By</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for r in items %}
+                    <tr>
+                        <td>
+                            <strong>{{ r.student.first_name }} {{ r.student.last_name or '' }}</strong>
+                            <div class="small text-muted">{{ r.student.email }}</div>
+                            <div class="small text-muted">ID: {{ r.student.user_id }}</div>
+                        </td>
+                        <td>
+                            <strong>{{ r.course.course_name }}</strong>
+                            <div class="small text-muted">Course ID: {{ r.course.course_id }}</div>
+                        </td>
+                        <td>
+                            <strong>{{ r.instructor.first_name }} {{ r.instructor.last_name or '' }}</strong>
+                            <div class="small text-muted">{{ r.instructor.email }}</div>
+                        </td>
+                        <td style="max-width: 260px;">
+                            <div class="small">{{ r.reason }}</div>
+                            <div class="small text-muted mt-1">
+                                Created: {{ r.created_at.strftime('%Y-%m-%d %H:%M') if r.created_at else '—' }}
+                            </div>
+                            {% if r.decided_at %}
+                                <div class="small text-muted">
+                                    Decided: {{ r.decided_at.strftime('%Y-%m-%d %H:%M') }}
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if r.status == 'pending' %}
+                                <span class="status-pill status-pill-pending">Pending</span>
+                            {% elif r.status == 'approved' %}
+                                <span class="status-pill status-pill-approved">Approved</span>
+                            {% elif r.status == 'rejected' %}
+                                <span class="status-pill status-pill-rejected">Rejected</span>
+                            {% else %}
+                                <span class="status-pill">{{ r.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if r.status == 'pending' %}
+                                <form method="POST" class="d-inline"
+                                      onsubmit="return confirm('Approve and deregister this student from the course?');">
+                                    <input type="hidden" name="action" value="approve">
+                                    <input type="hidden" name="request_id" value="{{ r.request_id }}">
+                                    <button type="submit" class="btn btn-danger btn-sm mb-1">
+                                        <i class="fas fa-check me-1"></i>Approve
+                                    </button>
+                                </form>
+                                <form method="POST" class="d-inline"
+                                      onsubmit="return confirm('Reject this deregistration request?');">
+                                    <input type="hidden" name="action" value="reject">
+                                    <input type="hidden" name="request_id" value="{{ r.request_id }}">
+                                    <button type="submit" class="btn btn-success btn-sm mb-1">
+                                        <i class="fas fa-times me-1"></i>Reject
+                                    </button>
+                                </form>
+                                <form method="POST" class="d-inline"
+                                      onsubmit="return confirm('Cancel this deregistration request and remove it?');">
+                                    <input type="hidden" name="action" value="cancel">
+                                    <input type="hidden" name="request_id" value="{{ r.request_id }}">
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm mb-1">
+                                        <i class="fas fa-ban me-1"></i>Cancel Request
+                                    </button>
+                                </form>
+                            {% else %}
+                                <span class="small text-muted">No actions available</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted mb-0">No deregistration requests have been submitted yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
