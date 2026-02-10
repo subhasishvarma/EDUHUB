@@ -196,31 +196,36 @@
             </div>
         </div>
         <div class="stats-grid">
-        <a href="{{ url_for('admin.students') }}" class="stat-card stat-card-link green">
-            <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
-            <div class="stat-value">{{ stats.total_students }}</div>
-            <div class="stat-label">Students</div>
-        </a>
-        <a href="{{ url_for('admin.instructors') }}" class="stat-card stat-card-link gold">
-            <div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-            <div class="stat-value">{{ stats.total_instructors }}</div>
-            <div class="stat-label">Instructors</div>
-        </a>
-        <a href="{{ url_for('admin.courses') }}" class="stat-card stat-card-link accent">
-            <div class="stat-icon"><i class="fas fa-book-open"></i></div>
-            <div class="stat-value">{{ stats.total_courses }}</div>
-            <div class="stat-label">Courses</div>
-        </a>
-        <a href="{{ url_for('admin.universities') }}" class="stat-card stat-card-link rose">
-            <div class="stat-icon"><i class="fas fa-university"></i></div>
-            <div class="stat-value">{{ stats.total_universities }}</div>
-            <div class="stat-label">Universities</div>
-        </a>
-        <a href="{{ url_for('admin.enrollments') }}" class="stat-card stat-card-link green">
-            <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
-            <div class="stat-value">{{ stats.total_enrollments }}</div>
-            <div class="stat-label">Enrollments</div>
-        </a>
+            <a href="{{ url_for('admin.students') }}" class="stat-card stat-card-link green">
+                <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="stat-value">{{ stats.total_students }}</div>
+                <div class="stat-label">Students</div>
+            </a>
+            <a href="{{ url_for('admin.instructors') }}" class="stat-card stat-card-link gold">
+                <div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div class="stat-value">{{ stats.total_instructors }}</div>
+                <div class="stat-label">Instructors</div>
+            </a>
+            <a href="{{ url_for('admin.courses') }}" class="stat-card stat-card-link accent">
+                <div class="stat-icon"><i class="fas fa-book-open"></i></div>
+                <div class="stat-value">{{ stats.total_courses }}</div>
+                <div class="stat-label">Courses</div>
+            </a>
+            <a href="{{ url_for('admin.universities') }}" class="stat-card stat-card-link rose">
+                <div class="stat-icon"><i class="fas fa-university"></i></div>
+                <div class="stat-value">{{ stats.total_universities }}</div>
+                <div class="stat-label">Universities</div>
+            </a>
+            <a href="{{ url_for('admin.enrollments') }}" class="stat-card stat-card-link green">
+                <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
+                <div class="stat-value">{{ stats.total_enrollments }}</div>
+                <div class="stat-label">Enrollments</div>
+            </a>
+            <a href="{{ url_for('admin.deregistration_requests') }}" class="stat-card stat-card-link rose">
+                <div class="stat-icon"><i class="fas fa-user-minus"></i></div>
+                <div class="stat-value">{{ stats.pending_dereg_requests }}</div>
+                <div class="stat-label">Pending Deregistrations</div>
+            </a>
         </div>
     </div>
 </div>

@@ -193,6 +193,24 @@ class TopicSubtopic(db.Model):
     topic = db.relationship('ModuleTopic', backref=db.backref('subtopics', lazy=True, cascade='all, delete-orphan'))
 
 
+# Assignments attached to a specific topic
+class TopicAssignment(db.Model):
+    __tablename__ = 'topicassignments'
+
+    assignment_id = db.Column(db.Integer, primary_key=True)
+    topic_id = db.Column(db.Integer, db.ForeignKey('moduletopics.topic_id', ondelete='CASCADE'), nullable=False)
+
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+    due_date = db.Column(db.Date)
+    created_at = db.Column(db.TIMESTAMP, server_default=func.current_timestamp())
+
+    topic = db.relationship(
+        'ModuleTopic',
+        backref=db.backref('assignments', lazy=True, cascade='all, delete-orphan')
+    )
+
+
 # ✅ UPDATED: Subtopic content now supports Video / Notes / Online Book
 class SubtopicContent(db.Model):
     __tablename__ = 'subtopiccontents'
@@ -217,3 +235,23 @@ class SubtopicContent(db.Model):
         'TopicSubtopic',
         backref=db.backref('contents', lazy=True, cascade='all, delete-orphan')
     )
+
+
+class DeregistrationRequest(db.Model):
+    __tablename__ = 'deregistration_requests'
+
+    request_id = db.Column(db.Integer, primary_key=True)
+
+    student_id = db.Column(db.Integer, db.ForeignKey('students.user_id', ondelete='CASCADE'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.course_id', ondelete='CASCADE'), nullable=False)
+    instructor_id = db.Column(db.Integer, db.ForeignKey('instructors.user_id', ondelete='CASCADE'), nullable=False)
+
+    reason = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(20), default='pending', nullable=False)  # pending / approved / rejected
+
+    created_at = db.Column(db.TIMESTAMP, server_default=func.current_timestamp())
+    decided_at = db.Column(db.TIMESTAMP)
+
+    student = db.relationship('Student', backref=db.backref('deregistration_requests', lazy=True))
+    course = db.relationship('Course', backref=db.backref('deregistration_requests', lazy=True))
+    instructor = db.relationship('Instructor', backref=db.backref('deregistration_requests', lazy=True))

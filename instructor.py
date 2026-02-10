@@ -1,4 +1,6 @@
 from functools import wraps
+from datetime import datetime
+
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required, current_user
 from sqlalchemy import func
@@ -12,6 +14,8 @@ from .models import (
     ModuleTopic,
     TopicSubtopic,
     SubtopicContent,
+    TopicAssignment,
+    DeregistrationRequest,
 )
 
 instructor = Blueprint('instructor', __name__, url_prefix='/instructor')
@@ -194,6 +198,74 @@ def delete_topic(topic_id):
     except Exception as e:
         db.session.rollback()
         flash(f"Error deleting topic: {e}")
+
+    return redirect(url_for('instructor.course_detail', course_id=mod.course_id, tab='modules'))
+
+
+@instructor.route('/topics/<int:topic_id>/assignments/add', methods=['POST'])
+@login_required
+@instructor_required
+def add_assignment(topic_id):
+    """Create an assignment under a specific topic."""
+    t = ModuleTopic.query.get_or_404(topic_id)
+    mod = CourseModule.query.get_or_404(t.module_id)
+
+    if not _is_assigned(mod.course_id):
+        flash("Unauthorized.")
+        return redirect(url_for('instructor.dashboard'))
+
+    title = request.form.get('title', '').strip()
+    description = request.form.get('description', '').strip()
+    due_date_str = request.form.get('due_date', '').strip()
+
+    if not title:
+        flash("Assignment title is required.")
+        return redirect(url_for('instructor.course_detail', course_id=mod.course_id, tab='modules'))
+
+    due_date_val = None
+    if due_date_str:
+        try:
+            due_date_val = datetime.strptime(due_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            flash("Invalid due date format.")
+            return redirect(url_for('instructor.course_detail', course_id=mod.course_id, tab='modules'))
+
+    try:
+        db.session.add(TopicAssignment(
+            topic_id=topic_id,
+            title=title,
+            description=description or None,
+            due_date=due_date_val,
+        ))
+        db.session.commit()
+        flash("Assignment created.")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error creating assignment: {e}")
+
+    return redirect(url_for('instructor.course_detail', course_id=mod.course_id, tab='modules'))
+
+
+@instructor.route('/assignments/<int:assignment_id>/delete', methods=['POST'])
+@login_required
+@instructor_required
+def delete_assignment(assignment_id):
+    """Delete an assignment from a topic."""
+    a = TopicAssignment.query.get_or_404(assignment_id)
+    t = ModuleTopic.query.get_or_404(a.topic_id)
+    mod = CourseModule.query.get_or_404(t.module_id)
+
+    if not _is_assigned(mod.course_id):
+        flash("Unauthorized.")
+        return redirect(url_for('instructor.dashboard'))
+
+    try:
+        db.session.delete(a)
+        db.session.commit()
+        flash("Assignment deleted.")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting assignment: {e}")
 
     return redirect(url_for('instructor.course_detail', course_id=mod.course_id, tab='modules'))
 
@@ -444,5 +516,59 @@ def grade_student(course_id):
     except Exception as e:
         db.session.rollback()
         flash(f"Error updating grade: {e}")
+
+    return redirect(url_for('instructor.course_detail', course_id=course_id, tab='students'))
+
+
+@instructor.route('/course/<int:course_id>/students/deregister-request', methods=['POST'])
+@login_required
+@instructor_required
+def request_deregistration(course_id):
+    """Instructor requests that admin deregister a student from this course."""
+    if not _is_assigned(course_id):
+        flash("Unauthorized.")
+        return redirect(url_for('instructor.dashboard'))
+
+    student_id = request.form.get('student_id')
+    reason = request.form.get('reason', '').strip()
+
+    if not student_id:
+        flash("Student ID is required.")
+        return redirect(url_for('instructor.course_detail', course_id=course_id, tab='students'))
+
+    if not reason:
+        flash("Please provide a reason for deregistration.")
+        return redirect(url_for('instructor.course_detail', course_id=course_id, tab='students'))
+
+    enr = Enrollment.query.filter_by(course_id=course_id, student_id=student_id).first()
+    if not enr:
+        flash("Enrollment not found.")
+        return redirect(url_for('instructor.course_detail', course_id=course_id, tab='students'))
+
+    try:
+        # If there is already a pending request, just update the reason
+        existing = (
+            DeregistrationRequest.query
+            .filter_by(student_id=student_id, course_id=course_id, status='pending')
+            .first()
+        )
+
+        if existing:
+            existing.reason = reason
+            existing.instructor_id = current_user.user_id
+        else:
+            db.session.add(DeregistrationRequest(
+                student_id=student_id,
+                course_id=course_id,
+                instructor_id=current_user.user_id,
+                reason=reason,
+                status='pending',
+            ))
+
+        db.session.commit()
+        flash("Deregistration request sent to admin.")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error creating deregistration request: {e}")
 
     return redirect(url_for('instructor.course_detail', course_id=course_id, tab='students'))

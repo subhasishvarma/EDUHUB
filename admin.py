@@ -1,8 +1,22 @@
 from functools import wraps
+from datetime import datetime
+
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash
-from .models import db, User, Student, Instructor, Admin, Analyst, University, Course, Topic, Enrollment
+from .models import (
+    db,
+    User,
+    Student,
+    Instructor,
+    Admin,
+    Analyst,
+    University,
+    Course,
+    Topic,
+    Enrollment,
+    DeregistrationRequest,
+)
 
 admin = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -42,7 +56,7 @@ def _safe_query(query_fn, default=None):
 def dashboard():
     # Stats - wrap in safe calls in case some tables don't exist yet
     stats = {
-        'total_users': _safe_count(Student)+_safe_count(Instructor),
+        'total_users': _safe_count(Student) + _safe_count(Instructor),
         'total_students': _safe_count(Student),
         'total_instructors': _safe_count(Instructor),
         'total_admins': _safe_count(Admin),
@@ -51,6 +65,11 @@ def dashboard():
         'total_courses': _safe_count(Course),
         'total_enrollments': _safe_count(Enrollment),
         'total_topics': _safe_count(Topic),
+        'total_dereg_requests': _safe_count(DeregistrationRequest),
+        'pending_dereg_requests': _safe_query(
+            lambda: DeregistrationRequest.query.filter_by(status='pending').count(),
+            default=0,
+        ),
     }
 
     return render_template(
@@ -371,3 +390,64 @@ def enrollments():
         students=students,
         courses=courses,
     )
+
+
+@admin.route('/deregistration-requests', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def deregistration_requests():
+    """View and act on deregistration requests from instructors."""
+    requests_q = _safe_query(
+        lambda: DeregistrationRequest.query
+        .join(Student, DeregistrationRequest.student_id == Student.user_id)
+        .join(Course, DeregistrationRequest.course_id == Course.course_id)
+        .join(Instructor, DeregistrationRequest.instructor_id == Instructor.user_id)
+        .order_by(DeregistrationRequest.created_at.desc())
+        .all(),
+        default=[],
+    )
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+        req_id = request.form.get('request_id')
+
+        if not req_id:
+            flash('Request ID missing.')
+            return redirect(url_for('admin.deregistration_requests'))
+
+        dreq = DeregistrationRequest.query.get(int(req_id))
+        if not dreq:
+            flash('Request not found.')
+            return redirect(url_for('admin.deregistration_requests'))
+
+        try:
+            if action == 'approve' and dreq.status == 'pending':
+                # Remove enrollment if it exists
+                enr = Enrollment.query.filter_by(
+                    student_id=dreq.student_id,
+                    course_id=dreq.course_id
+                ).first()
+                if enr:
+                    db.session.delete(enr)
+
+                dreq.status = 'approved'
+                dreq.decided_at = datetime.utcnow()
+                db.session.commit()
+                flash('Deregistration approved and student removed from course.')
+
+            elif action == 'reject' and dreq.status == 'pending':
+                dreq.status = 'rejected'
+                dreq.decided_at = datetime.utcnow()
+                db.session.commit()
+                flash('Deregistration request marked as rejected.')
+
+            else:
+                flash('Request is already processed.')
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error processing request: {e}')
+
+        return redirect(url_for('admin.deregistration_requests'))
+
+    return render_template('admin/deregistration_requests.html', items=requests_q)
