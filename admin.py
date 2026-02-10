@@ -363,7 +363,7 @@ def enrollments():
     if request.method == 'POST' and request.form.get('action') == 'add':
         student_id = request.form.get('student_id')
         course_id = request.form.get('course_id')
-        grade = request.form.get('grade')
+        marks = request.form.get('marks')
         due_by = request.form.get('due_by')
         if not student_id or not course_id:
             flash('Student and course are required.')
@@ -374,7 +374,7 @@ def enrollments():
                 e = Enrollment(
                     student_id=int(student_id),
                     course_id=int(course_id),
-                    grade=float(grade) if grade else None,
+                    marks=None,
                     due_by=due_by if due_by else None
                 )
                 db.session.add(e)
@@ -440,6 +440,12 @@ def deregistration_requests():
                 dreq.decided_at = datetime.utcnow()
                 db.session.commit()
                 flash('Deregistration request marked as rejected.')
+
+            elif action == 'cancel' and dreq.status == 'pending':
+                # Delete the request without any action on enrollment
+                db.session.delete(dreq)
+                db.session.commit()
+                flash('Deregistration request cancelled and removed.')
 
             else:
                 flash('Request is already processed.')

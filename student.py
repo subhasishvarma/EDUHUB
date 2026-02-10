@@ -1,3 +1,5 @@
+import json
+import os
 from functools import wraps
 from datetime import datetime
 
@@ -82,8 +84,8 @@ def grades():
     total_grades = 0
     count = 0
     for course, enrollment, university in enrollments:
-        if enrollment.grade:
-            total_grades += float(enrollment.grade)
+        if enrollment.marks:
+            total_grades += float(enrollment.marks)
             count += 1
 
     gpa = round(total_grades / count, 2) if count > 0 else 0
@@ -215,8 +217,16 @@ def course_detail(course_id):
     instructors = course.instructors
 
     # Get topics and textbooks
-    topics = course.topics
-    textbooks = course.textbooks
+    modules = course.modules
+    textbooks = course.online_books
+    
+    submissions = []
+    if os.path.exists('submissions.json'):
+        with open('submissions.json', 'r') as f:
+            submissions = json.load(f)
+    
+    student_submissions = [s for s in submissions if s['student_id'] == current_user.user_id]
+
 
     return render_template(
         "student/course_detail.html",
@@ -227,7 +237,37 @@ def course_detail(course_id):
         notes=notes,
         books=books,
         instructors=instructors,
-        topics=topics,
+        modules=modules,
         textbooks=textbooks,
+        student_submissions=student_submissions,
     )
+
+@student.route('/course/<int:course_id>/submit/<int:assignment_id>', methods=['POST'])
+@login_required
+@student_required
+def submit_assignment(course_id, assignment_id):
+    submissions = []
+    if os.path.exists('submissions.json'):
+        with open('submissions.json', 'r') as f:
+            submissions = json.load(f)
+
+    # Check if already submitted
+    if any(s['assignment_id'] == assignment_id and s['student_id'] == current_user.user_id for s in submissions):
+        flash('You have already submitted this assignment.')
+        return redirect(url_for('student.course_detail', course_id=course_id))
+
+    # Add new submission
+    new_submission = {
+        'assignment_id': assignment_id,
+        'student_id': current_user.user_id,
+        'submitted_at': datetime.utcnow().isoformat(),
+        'grade': None
+    }
+    submissions.append(new_submission)
+
+    with open('submissions.json', 'w') as f:
+        json.dump(submissions, f, indent=4)
+
+    flash('Assignment submitted successfully!')
+    return redirect(url_for('student.course_detail', course_id=course_id))
 

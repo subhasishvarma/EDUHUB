@@ -10,8 +10,9 @@
         background: linear-gradient(135deg, #10b981, #059669);
         color: white;
         padding: 60px 0 40px;
-        margin: -80px 0 40px;
+        margin: 0 0 40px;
         border-radius: 0 0 30px 30px;
+
     }
 
     .grades-title {
@@ -166,7 +167,7 @@
         <div class="gpa-card">
             <div class="gpa-value">{{ gpa }}</div>
             <div class="gpa-label">Overall Average Grade</div>
-            <p class="text-muted mt-2 mb-0">Based on {{ enrollments|selectattr('1.grade')|list|length }} graded courses</p>
+            <p class="text-muted mt-2 mb-0">Based on {{ enrollments|selectattr('1.marks')|list|length }} graded courses</p>
         </div>
 
         <!-- Grades List -->
@@ -184,8 +185,8 @@
                     </p>
                 </div>
                 <div>
-                    {% if enrollment.grade %}
-                        {% set grade_num = enrollment.grade|float %}
+                    {% if enrollment.marks %}
+                        {% set grade_num = enrollment.marks|float %}
                         {% if grade_num >= 90 %}
                             <div class="grade-badge grade-A">{{ "%.1f"|format(grade_num) }}%</div>
                         {% elif grade_num >= 80 %}
