@@ -311,6 +311,28 @@ CREATE TABLE IF NOT EXISTS subtopiccontents (
     content_order INT DEFAULT 1
 );
 
+-- 22) TopicAssignments (assignments per topic)
+CREATE TABLE IF NOT EXISTS topicassignments (
+    assignment_id SERIAL PRIMARY KEY,
+    topic_id INT NOT NULL REFERENCES moduletopics(topic_id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    due_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 23) DeregistrationRequests (instructor -> admin workflow)
+CREATE TABLE IF NOT EXISTS deregistration_requests (
+    request_id SERIAL PRIMARY KEY,
+    student_id INT NOT NULL REFERENCES students(user_id) ON DELETE CASCADE,
+    course_id INT NOT NULL REFERENCES courses(course_id) ON DELETE CASCADE,
+    instructor_id INT NOT NULL REFERENCES instructors(user_id) ON DELETE CASCADE,
+    reason TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    decided_at TIMESTAMP
+);
+
 -- ✅ SAFE migration if old columns exist
 DO $$
 BEGIN

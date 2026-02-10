@@ -1,7 +1,8 @@
 from functools import wraps
+from datetime import datetime
+
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required, current_user
-<<<<<<< HEAD
 from sqlalchemy import func
 
 from .models import (
@@ -13,10 +14,9 @@ from .models import (
     ModuleTopic,
     TopicSubtopic,
     SubtopicContent,
+    TopicAssignment,
+    DeregistrationRequest,
 )
-=======
-from .models import db, Course, CourseVideo, CourseNote, CourseOnlineBook
->>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 
 instructor = Blueprint('instructor', __name__, url_prefix='/instructor')
 
@@ -35,10 +35,6 @@ def instructor_required(f):
 
 
 def _is_assigned(course_id: int) -> bool:
-<<<<<<< HEAD
-=======
-    # Your ZIP admin mapping likely creates current_user.courses relationship.
->>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
     return any(c.course_id == course_id for c in getattr(current_user, "courses", []))
 
 
@@ -50,12 +46,9 @@ def dashboard():
     return render_template('instructor/dashboard.html', courses=courses)
 
 
-<<<<<<< HEAD
 # ------------------------------------------------------------
 # Course page (Modules + Students)
 # ------------------------------------------------------------
-=======
->>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 @instructor.route('/course/<int:course_id>')
 @login_required
 @instructor_required
@@ -66,7 +59,6 @@ def course_detail(course_id):
 
     course = Course.query.get_or_404(course_id)
 
-<<<<<<< HEAD
     modules = (
         CourseModule.query
         .filter_by(course_id=course_id)
@@ -82,16 +74,10 @@ def course_detail(course_id):
     )
 
     tab = request.args.get('tab', 'modules')
-=======
-    videos = CourseVideo.query.filter_by(course_id=course_id).all()
-    notes = CourseNote.query.filter_by(course_id=course_id).all()
-    books = CourseOnlineBook.query.filter_by(course_id=course_id).all()
->>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 
     return render_template(
         'instructor/course_detail.html',
         course=course,
-<<<<<<< HEAD
         modules=modules,
         enrollments=enrollments,
         tab=tab
@@ -105,24 +91,10 @@ def course_detail(course_id):
 @login_required
 @instructor_required
 def add_module(course_id):
-=======
-        videos=videos,
-        notes=notes,
-        books=books
-    )
-
-
-# ------------------ ADD VIDEO ------------------
-@instructor.route('/course/<int:course_id>/videos/add', methods=['POST'])
-@login_required
-@instructor_required
-def add_video(course_id):
->>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
     if not _is_assigned(course_id):
         flash("Unauthorized.")
         return redirect(url_for('instructor.dashboard'))
 
-<<<<<<< HEAD
     title = request.form.get('module_title', '').strip()
     if not title:
         flash("Module title is required.")
@@ -226,6 +198,74 @@ def delete_topic(topic_id):
     except Exception as e:
         db.session.rollback()
         flash(f"Error deleting topic: {e}")
+
+    return redirect(url_for('instructor.course_detail', course_id=mod.course_id, tab='modules'))
+
+
+@instructor.route('/topics/<int:topic_id>/assignments/add', methods=['POST'])
+@login_required
+@instructor_required
+def add_assignment(topic_id):
+    """Create an assignment under a specific topic."""
+    t = ModuleTopic.query.get_or_404(topic_id)
+    mod = CourseModule.query.get_or_404(t.module_id)
+
+    if not _is_assigned(mod.course_id):
+        flash("Unauthorized.")
+        return redirect(url_for('instructor.dashboard'))
+
+    title = request.form.get('title', '').strip()
+    description = request.form.get('description', '').strip()
+    due_date_str = request.form.get('due_date', '').strip()
+
+    if not title:
+        flash("Assignment title is required.")
+        return redirect(url_for('instructor.course_detail', course_id=mod.course_id, tab='modules'))
+
+    due_date_val = None
+    if due_date_str:
+        try:
+            due_date_val = datetime.strptime(due_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            flash("Invalid due date format.")
+            return redirect(url_for('instructor.course_detail', course_id=mod.course_id, tab='modules'))
+
+    try:
+        db.session.add(TopicAssignment(
+            topic_id=topic_id,
+            title=title,
+            description=description or None,
+            due_date=due_date_val,
+        ))
+        db.session.commit()
+        flash("Assignment created.")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error creating assignment: {e}")
+
+    return redirect(url_for('instructor.course_detail', course_id=mod.course_id, tab='modules'))
+
+
+@instructor.route('/assignments/<int:assignment_id>/delete', methods=['POST'])
+@login_required
+@instructor_required
+def delete_assignment(assignment_id):
+    """Delete an assignment from a topic."""
+    a = TopicAssignment.query.get_or_404(assignment_id)
+    t = ModuleTopic.query.get_or_404(a.topic_id)
+    mod = CourseModule.query.get_or_404(t.module_id)
+
+    if not _is_assigned(mod.course_id):
+        flash("Unauthorized.")
+        return redirect(url_for('instructor.dashboard'))
+
+    try:
+        db.session.delete(a)
+        db.session.commit()
+        flash("Assignment deleted.")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting assignment: {e}")
 
     return redirect(url_for('instructor.course_detail', course_id=mod.course_id, tab='modules'))
 
@@ -455,41 +495,10 @@ def delete_content(content_id):
 @login_required
 @instructor_required
 def grade_student(course_id):
-=======
-    video_url = request.form.get('video_url', '').strip()
-    title = request.form.get('title', '').strip()
-    duration = request.form.get('duration_minutes', '').strip()
-
-    if not video_url or not title or not duration:
-        flash("All video fields are required.")
-        return redirect(url_for('instructor.course_detail', course_id=course_id))
-
-    try:
-        db.session.add(CourseVideo(
-            course_id=course_id,
-            video_url=video_url,
-            title=title,
-            duration_minutes=int(duration)
-        ))
-        db.session.commit()
-        flash("Video added successfully.")
-    except Exception as e:
-        db.session.rollback()
-        flash(f"Error adding video: {e}")
-
-    return redirect(url_for('instructor.course_detail', course_id=course_id))
-
-
-@instructor.route('/course/<int:course_id>/videos/delete', methods=['POST'])
-@login_required
-@instructor_required
-def delete_video(course_id):
->>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
     if not _is_assigned(course_id):
         flash("Unauthorized.")
         return redirect(url_for('instructor.dashboard'))
 
-<<<<<<< HEAD
     student_id = request.form.get('student_id')
     marks = request.form.get('marks', '').strip()
     letter_grade = request.form.get('letter_grade', '').strip()
@@ -509,127 +518,57 @@ def delete_video(course_id):
         flash(f"Error updating grade: {e}")
 
     return redirect(url_for('instructor.course_detail', course_id=course_id, tab='students'))
-=======
-    video_url = request.form.get('video_url')
-    try:
-        item = CourseVideo.query.filter_by(course_id=course_id, video_url=video_url).first()
-        if item:
-            db.session.delete(item)
-            db.session.commit()
-            flash("Video deleted.")
-    except Exception as e:
-        db.session.rollback()
-        flash(f"Error deleting video: {e}")
-
-    return redirect(url_for('instructor.course_detail', course_id=course_id))
 
 
-# ------------------ ADD NOTE ------------------
-@instructor.route('/course/<int:course_id>/notes/add', methods=['POST'])
+@instructor.route('/course/<int:course_id>/students/deregister-request', methods=['POST'])
 @login_required
 @instructor_required
-def add_note(course_id):
+def request_deregistration(course_id):
+    """Instructor requests that admin deregister a student from this course."""
     if not _is_assigned(course_id):
         flash("Unauthorized.")
         return redirect(url_for('instructor.dashboard'))
 
-    note_url = request.form.get('note_url', '').strip()
-    title = request.form.get('title', '').strip()
-    fmt = request.form.get('format', 'PDF').strip()
+    student_id = request.form.get('student_id')
+    reason = request.form.get('reason', '').strip()
 
-    if not note_url or not title:
-        flash("Note URL and title are required.")
-        return redirect(url_for('instructor.course_detail', course_id=course_id))
+    if not student_id:
+        flash("Student ID is required.")
+        return redirect(url_for('instructor.course_detail', course_id=course_id, tab='students'))
+
+    if not reason:
+        flash("Please provide a reason for deregistration.")
+        return redirect(url_for('instructor.course_detail', course_id=course_id, tab='students'))
+
+    enr = Enrollment.query.filter_by(course_id=course_id, student_id=student_id).first()
+    if not enr:
+        flash("Enrollment not found.")
+        return redirect(url_for('instructor.course_detail', course_id=course_id, tab='students'))
 
     try:
-        db.session.add(CourseNote(
-            course_id=course_id,
-            note_url=note_url,
-            title=title,
-            format=fmt or 'PDF'
-        ))
+        # If there is already a pending request, just update the reason
+        existing = (
+            DeregistrationRequest.query
+            .filter_by(student_id=student_id, course_id=course_id, status='pending')
+            .first()
+        )
+
+        if existing:
+            existing.reason = reason
+            existing.instructor_id = current_user.user_id
+        else:
+            db.session.add(DeregistrationRequest(
+                student_id=student_id,
+                course_id=course_id,
+                instructor_id=current_user.user_id,
+                reason=reason,
+                status='pending',
+            ))
+
         db.session.commit()
-        flash("Note added successfully.")
+        flash("Deregistration request sent to admin.")
     except Exception as e:
         db.session.rollback()
-        flash(f"Error adding note: {e}")
+        flash(f"Error creating deregistration request: {e}")
 
-    return redirect(url_for('instructor.course_detail', course_id=course_id))
-
-
-@instructor.route('/course/<int:course_id>/notes/delete', methods=['POST'])
-@login_required
-@instructor_required
-def delete_note(course_id):
-    if not _is_assigned(course_id):
-        flash("Unauthorized.")
-        return redirect(url_for('instructor.dashboard'))
-
-    note_url = request.form.get('note_url')
-    try:
-        item = CourseNote.query.filter_by(course_id=course_id, note_url=note_url).first()
-        if item:
-            db.session.delete(item)
-            db.session.commit()
-            flash("Note deleted.")
-    except Exception as e:
-        db.session.rollback()
-        flash(f"Error deleting note: {e}")
-
-    return redirect(url_for('instructor.course_detail', course_id=course_id))
-
-
-# ------------------ ADD BOOK ------------------
-@instructor.route('/course/<int:course_id>/books/add', methods=['POST'])
-@login_required
-@instructor_required
-def add_book(course_id):
-    if not _is_assigned(course_id):
-        flash("Unauthorized.")
-        return redirect(url_for('instructor.dashboard'))
-
-    book_url = request.form.get('book_url', '').strip()
-    title = request.form.get('title', '').strip()
-    page_count = request.form.get('page_count', '').strip()
-
-    if not book_url or not title:
-        flash("Book URL and title are required.")
-        return redirect(url_for('instructor.course_detail', course_id=course_id))
-
-    try:
-        db.session.add(CourseOnlineBook(
-            course_id=course_id,
-            book_url=book_url,
-            title=title,
-            page_count=int(page_count) if page_count else None
-        ))
-        db.session.commit()
-        flash("Book added successfully.")
-    except Exception as e:
-        db.session.rollback()
-        flash(f"Error adding book: {e}")
-
-    return redirect(url_for('instructor.course_detail', course_id=course_id))
-
-
-@instructor.route('/course/<int:course_id>/books/delete', methods=['POST'])
-@login_required
-@instructor_required
-def delete_book(course_id):
-    if not _is_assigned(course_id):
-        flash("Unauthorized.")
-        return redirect(url_for('instructor.dashboard'))
-
-    book_url = request.form.get('book_url')
-    try:
-        item = CourseOnlineBook.query.filter_by(course_id=course_id, book_url=book_url).first()
-        if item:
-            db.session.delete(item)
-            db.session.commit()
-            flash("Book deleted.")
-    except Exception as e:
-        db.session.rollback()
-        flash(f"Error deleting book: {e}")
-
-    return redirect(url_for('instructor.course_detail', course_id=course_id))
->>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
+    return redirect(url_for('instructor.course_detail', course_id=course_id, tab='students'))
