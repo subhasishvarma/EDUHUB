@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}My Grades | EduHub{% endblock %}
+
+{% block main_class %}container{% endblock %}
+
+{% block content %}
+<div class="mt-4">
+  <div class="page-card mb-3">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <div>
+        <h2 class="mb-1">My Grades</h2>
+        <div class="text-muted">Marks and letter grades are provided by your instructor.</div>
+      </div>
+      <div class="text-end">
+        <div class="text-muted small">Average Marks</div>
+        <div class="fs-3 fw-bold">{{ avg_marks if avg_marks is not none else '—' }}</div>
+      </div>
+    </div>
+  </div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="mb-3">
+        {% for msg in messages %}
+          <div class="alert alert-info mb-2">{{ msg }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <div class="page-card">
+    {% if enrollments and enrollments|length > 0 %}
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th>University</th>
+              <th style="width: 140px;">Marks</th>
+              <th style="width: 140px;">Grade</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for enrollment, course, university in enrollments %}
+              <tr>
+                <td>
+                  <div class="fw-bold">{{ course.course_name }}</div>
+                  <div class="text-muted small">Type: {{ course.c_type or '—' }} | Duration: {{ course.duration_weeks or '—' }} weeks</div>
+                </td>
+                <td>{{ university.uni_name }}</td>
+                <td>{{ enrollment.marks if enrollment.marks is not none else 'Pending' }}</td>
+                <td>{{ enrollment.letter_grade if enrollment.letter_grade else '—' }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-muted">No enrollments found. Enroll in a course from <a href="{{ url_for('student.explore_courses') }}">Explore Courses</a>.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
