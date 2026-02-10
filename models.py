@@ -2,12 +2,22 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from sqlalchemy import Enum, func
 
+<<<<<<< HEAD
 db = SQLAlchemy()
 
 user_role_enum = Enum('admin', 'analyst', 'student', 'instructor', name='user_role')
 course_type_enum = Enum('degree', 'diploma', 'certificate', name='course_type')
 
 
+=======
+# This db object will be initialized in the main __init__.py
+db = SQLAlchemy()
+
+# Using SQLAlchemy's Enum type is better for mapping to PostgreSQL ENUM
+user_role_enum = Enum('admin', 'analyst', 'student', 'instructor', name='user_role')
+course_type_enum = Enum('degree', 'diploma', 'certificate', name='course_type')
+
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
@@ -23,6 +33,10 @@ class User(UserMixin, db.Model):
     def get_id(self):
         return self.user_id
 
+<<<<<<< HEAD
+=======
+    # Property for Flask-Login to use
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
     @property
     def password(self):
         raise AttributeError('password is not a readable attribute')
@@ -31,23 +45,44 @@ class User(UserMixin, db.Model):
     def password(self, password):
         self.password_hash = password
 
+<<<<<<< HEAD
+=======
+    # Polymorphic identity for inheritance
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
     __mapper_args__ = {
         'polymorphic_identity': 'user',
         'polymorphic_on': role
     }
 
+<<<<<<< HEAD
 
 class Admin(User):
     __tablename__ = 'admins'
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), primary_key=True)
     __mapper_args__ = {'polymorphic_identity': 'admin'}
 
+=======
+class Admin(User):
+    __tablename__ = 'admins'
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'admin',
+    }
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 
 class Analyst(User):
     __tablename__ = 'analysts'
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), primary_key=True)
+<<<<<<< HEAD
     __mapper_args__ = {'polymorphic_identity': 'analyst'}
 
+=======
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'analyst',
+    }
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 
 class Student(User):
     __tablename__ = 'students'
@@ -55,18 +90,35 @@ class Student(User):
     age = db.Column(db.Integer)
     skill_level = db.Column(db.String(50))
     country = db.Column(db.String(100))
+<<<<<<< HEAD
     __mapper_args__ = {'polymorphic_identity': 'student'}
 
+=======
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'student',
+    }
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 
 class Instructor(User):
     __tablename__ = 'instructors'
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), primary_key=True)
     phone_number = db.Column(db.String(20))
     bio = db.Column(db.String(500))
+<<<<<<< HEAD
     __mapper_args__ = {'polymorphic_identity': 'instructor'}
 
 
 # ----------------- Admin dashboard entities -----------------
+=======
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'instructor',
+    }
+
+
+# --- Other schema entities for admin dashboard ---
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 class University(db.Model):
     __tablename__ = 'universities'
     uni_id = db.Column(db.Integer, primary_key=True)
@@ -74,10 +126,14 @@ class University(db.Model):
     city = db.Column(db.String(100))
     country = db.Column(db.String(100))
     uni_type = db.Column(db.String(50))
+<<<<<<< HEAD
 
     courses = db.relationship(
         'Course', backref='university', lazy=True, cascade='all, delete-orphan'
     )
+=======
+    courses = db.relationship('Course', backref='university', lazy=True, cascade='all, delete-orphan')
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 
 
 # Many-to-many: instructors assigned to courses
@@ -87,6 +143,23 @@ course_instructors = db.Table(
     db.Column('instructor_id', db.Integer, db.ForeignKey('instructors.user_id', ondelete='CASCADE'), primary_key=True),
 )
 
+<<<<<<< HEAD
+=======
+# Many-to-many: course topics
+course_topics = db.Table(
+    'course_topics',
+    db.Column('course_id', db.Integer, db.ForeignKey('courses.course_id', ondelete='CASCADE'), primary_key=True),
+    db.Column('topic_id', db.Integer, db.ForeignKey('topics.topic_id', ondelete='CASCADE'), primary_key=True),
+)
+
+# Many-to-many: course textbooks
+course_textbooks = db.Table(
+    'course_textbooks',
+    db.Column('course_id', db.Integer, db.ForeignKey('courses.course_id', ondelete='CASCADE'), primary_key=True),
+    db.Column('book_id', db.Integer, db.ForeignKey('textbooks.book_id', ondelete='CASCADE'), primary_key=True),
+)
+
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 
 class Course(db.Model):
     __tablename__ = 'courses'
@@ -95,28 +168,62 @@ class Course(db.Model):
     duration_weeks = db.Column(db.Integer)
     c_type = db.Column(course_type_enum)
     uni_id = db.Column(db.Integer, db.ForeignKey('universities.uni_id', ondelete='CASCADE'), nullable=False)
+<<<<<<< HEAD
 
     enrollments = db.relationship('Enrollment', backref='course', lazy=True, cascade='all, delete-orphan')
 
+=======
+    
+    # Relationships
+    enrollments = db.relationship('Enrollment', backref='course', lazy=True, cascade='all, delete-orphan')
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
     instructors = db.relationship(
         'Instructor',
         secondary=course_instructors,
         backref=db.backref('courses', lazy=True),
         lazy=True,
     )
+<<<<<<< HEAD
 
 
 # Legacy Topic (keep, but you will stop using it later)
+=======
+    topics = db.relationship(
+        'Topic',
+        secondary=course_topics,
+        backref=db.backref('courses', lazy=True),
+        lazy=True,
+    )
+    textbooks = db.relationship(
+        'TextBook',
+        secondary=course_textbooks,
+        backref=db.backref('courses', lazy=True),
+        lazy=True,
+    )
+
+
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 class Topic(db.Model):
     __tablename__ = 'topics'
     topic_id = db.Column(db.Integer, primary_key=True)
     topic_name = db.Column(db.String(100), nullable=False)
 
 
+<<<<<<< HEAD
+=======
+class TextBook(db.Model):
+    __tablename__ = 'textbooks'
+    book_id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    author = db.Column(db.String(255))
+
+
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 class Enrollment(db.Model):
     __tablename__ = 'enrollments'
     student_id = db.Column(db.Integer, db.ForeignKey('students.user_id', ondelete='CASCADE'), primary_key=True)
     course_id = db.Column(db.Integer, db.ForeignKey('courses.course_id', ondelete='CASCADE'), primary_key=True)
+<<<<<<< HEAD
 
     enrollment_date = db.Column(db.Date, server_default=func.current_date())
     due_by = db.Column(db.Date)
@@ -128,6 +235,13 @@ class Enrollment(db.Model):
 
 
 # ----------------- Legacy content tables (keep for now) -----------------
+=======
+    enrollment_date = db.Column(db.Date, server_default=func.current_date())
+    grade = db.Column(db.Numeric(5, 2))
+    due_by = db.Column(db.Date)
+
+
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
 class CourseVideo(db.Model):
     __tablename__ = 'coursevideos'
     course_id = db.Column(db.Integer, db.ForeignKey('courses.course_id', ondelete='CASCADE'), primary_key=True)
@@ -156,6 +270,7 @@ class CourseOnlineBook(db.Model):
     title = db.Column(db.String(255), nullable=False)
     page_count = db.Column(db.Integer)
 
+<<<<<<< HEAD
     course = db.relationship('Course', backref=db.backref('online_books', lazy=True, cascade='all, delete-orphan'))
 
 
@@ -217,3 +332,6 @@ class SubtopicContent(db.Model):
         'TopicSubtopic',
         backref=db.backref('contents', lazy=True, cascade='all, delete-orphan')
     )
+=======
+    course = db.relationship('Course', backref=db.backref('online_books', lazy=True, cascade='all, delete-orphan'))
+>>>>>>> b43b4c6 (Add auth, student dashboard, and templates)
