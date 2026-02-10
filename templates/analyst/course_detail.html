@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Course Detail | EduHub{% endblock %}
+{% block main_class %}container-fluid{% endblock %}
+
+{% block extra_css %}
+<style>
+  .page-header {
+    background: linear-gradient(135deg, var(--accent), #4f46e5);
+    color: white;
+    padding: 60px 0 40px;
+    margin-bottom: 35px;
+    border-radius: 0 0 30px 30px;
+  }
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.1rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+  .stat-card {
+    background: white;
+    border-radius: 18px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.08);
+    padding: 16px;
+    height: 100%;
+  }
+  .stat-label { color: var(--muted); font-weight: 700; font-size: 0.9rem; }
+  .stat-value { font-size: 1.5rem; font-weight: 900; margin: 0; }
+
+  .panel {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 16px 50px rgba(0,0,0,0.08);
+    padding: 18px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container-fluid">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <div>
+        <div class="page-title">{{ course.course_name }}</div>
+        <div style="opacity:.92">
+          <i class="fas fa-university me-2"></i>{{ course.uni_name }}
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <a class="btn btn-light" href="{{ url_for('analyst.course_analysis') }}">
+          <i class="fas fa-arrow-left me-2"></i>Back to Courses
+        </a>
+        <a class="btn btn-outline-light" href="{{ url_for('analyst.dashboard') }}">
+          <i class="fas fa-home me-2"></i>Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid pb-5">
+  <div class="row g-3 mb-3">
+    <div class="col-sm-6 col-lg-3">
+      <div class="stat-card">
+        <div class="stat-label">Enrollments</div>
+        <p class="stat-value">{{ course.enrollments or 0 }}</p>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="stat-card">
+        <div class="stat-label">Average Marks</div>
+        <p class="stat-value">
+          {% if course.avg_marks is not none %}{{ course.avg_marks }}{% else %}—{% endif %}
+        </p>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="stat-card">
+        <div class="stat-label">Minimum Marks</div>
+        <p class="stat-value">
+          {% if course.min_marks is not none %}{{ course.min_marks }}{% else %}—{% endif %}
+        </p>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="stat-card">
+        <div class="stat-label">Maximum Marks</div>
+        <p class="stat-value">
+          {% if course.max_marks is not none %}{{ course.max_marks }}{% else %}—{% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-7">
+      <div class="panel h-100">
+        <div class="fw-bold mb-1" style="font-size:1.1rem;">Marks Distribution</div>
+        <div class="text-muted small mb-3">Bar chart: mark value vs number of students</div>
+        <div style="height: 380px;">
+          <canvas id="marksChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="panel h-100">
+        <div class="fw-bold mb-1" style="font-size:1.1rem;">Distribution Table</div>
+        <div class="text-muted small mb-3">Exact counts used to plot the chart</div>
+
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Marks</th>
+                <th class="text-end">Students</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for i in range(marks|length) %}
+              <tr>
+                <td class="fw-bold">{{ marks[i] }}</td>
+                <td class="text-end">{{ counts[i] }}</td>
+              </tr>
+              {% endfor %}
+              {% if marks|length == 0 %}
+              <tr>
+                <td colspan="2" class="text-muted text-center py-4">
+                  No marks recorded yet for this course.
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="text-muted small mt-2">
+          Tip: If you expect data but see none, verify enrollments and that marks are stored for those enrollments.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const marks = {{ marks|tojson }};
+  const counts = {{ counts|tojson }};
+
+  const ctx = document.getElementById('marksChart');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: marks,
+      datasets: [{
+        label: 'Students',
+        data: counts,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { title: { display: true, text: 'Marks' } },
+        y: { beginAtZero: true, title: { display: true, text: 'Students' } }
+      }
+    }
+  });
+</script>
+{% endblock %}

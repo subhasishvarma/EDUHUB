@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Course Performance | EduHub{% endblock %}
+{% block main_class %}container-fluid{% endblock %}
+
+{% block extra_css %}
+<style>
+  .page-header {
+    background: linear-gradient(135deg, var(--accent), #4f46e5);
+    color: white;
+    padding: 60px 0 40px;
+    margin-bottom: 35px;
+    border-radius: 0 0 30px 30px;
+  }
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.3rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+  .panel {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 16px 50px rgba(0,0,0,0.08);
+    padding: 18px;
+  }
+  .table thead th {
+    border-top: none !important;
+    font-weight: 800;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: 1px solid var(--border-subtle);
+    background: #fafafa;
+  }
+  .search-input {
+    border-radius: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-subtle);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container-fluid">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <div>
+        <div class="page-title">Course Performance</div>
+        <div style="opacity:.92">Enrollments and average marks across all courses</div>
+      </div>
+      <div class="d-flex gap-2">
+        <a class="btn btn-light" href="{{ url_for('analyst.dashboard') }}">
+          <i class="fas fa-home me-2"></i>Dashboard
+        </a>
+        <a class="btn btn-outline-light" href="{{ url_for('analyst.university_performance') }}">
+          <i class="fas fa-university me-2"></i>Universities
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid pb-5">
+  <div class="row g-3">
+    <div class="col-lg-5">
+      <div class="panel h-100">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+          <div>
+            <div class="fw-bold" style="font-size:1.1rem;">Enrollments by Course</div>
+            <div class="text-muted small">Bar chart (top courses on screen)</div>
+          </div>
+          <span class="pill"><i class="fas fa-chart-bar"></i> Bar</span>
+        </div>
+        <div style="height: 360px;">
+          <canvas id="courseEnrollChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <div class="panel">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+          <div>
+            <div class="fw-bold" style="font-size:1.1rem;">Courses Table</div>
+            <div class="text-muted small">Click a course to view marks distribution</div>
+          </div>
+          <input id="courseSearch" class="search-input" placeholder="Search course / university..." />
+        </div>
+
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Course</th>
+                <th>University</th>
+                <th class="text-end">Enrollments</th>
+                <th class="text-end">Avg Marks</th>
+                <th class="text-end">Action</th>
+              </tr>
+            </thead>
+            <tbody id="courseTbody">
+              {% for c in courses %}
+              <tr>
+                <td class="fw-bold">{{ c.course_name }}</td>
+                <td class="text-muted">{{ c.uni_name }}</td>
+                <td class="text-end">{{ c.enrollments or 0 }}</td>
+                <td class="text-end">
+                  {% if c.avg_marks is not none %}
+                    {{ c.avg_marks }}
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <a class="btn btn-sm btn-eduhub-primary"
+                     href="{{ url_for('analyst.course_detail', course_id=c.course_id) }}">
+                    <i class="fas fa-eye me-1"></i>View
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="text-muted small mt-2">
+          Tip: If Avg Marks shows “—”, marks are not recorded for that course yet.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const search = document.getElementById('courseSearch');
+  const tbody = document.getElementById('courseTbody');
+
+  search.addEventListener('input', () => {
+    const q = search.value.toLowerCase().trim();
+    [...tbody.querySelectorAll('tr')].forEach(tr => {
+      const text = tr.innerText.toLowerCase();
+      tr.style.display = text.includes(q) ? '' : 'none';
+    });
+  });
+
+  // Build chart data from rows (safe, no dependency on tojson).
+  const labels = [];
+  const enrolls = [];
+
+  {% for c in courses %}
+    labels.push({{ c.course_name|tojson }});
+    enrolls.push({{ (c.enrollments or 0) }});
+  {% endfor %}
+
+  // If too many courses, only show first 12 for readability
+  const maxShow = 12;
+  const shownLabels = labels.slice(0, maxShow);
+  const shownEnrolls = enrolls.slice(0, maxShow);
+
+  const ctx = document.getElementById('courseEnrollChart');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: shownLabels,
+      datasets: [{
+        label: 'Enrollments',
+        data: shownEnrolls,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { maxRotation: 60, minRotation: 0 } },
+        y: { beginAtZero: true }
+      }
+    }
+  });
+</script>
+{% endblock %}

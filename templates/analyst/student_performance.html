@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Student Performance | EduHub{% endblock %}
+{% block main_class %}container-fluid{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ✅ ONLY CHANGE: header gradient color */
+  .page-header {
+    background: linear-gradient(135deg, var(--accent), #4f46e5);
+    color: white;
+    padding: 60px 0 40px;
+    margin-bottom: 35px;
+    border-radius: 0 0 30px 30px;
+  }
+
+  /* everything else unchanged */
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+  .panel {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 16px 50px rgba(0,0,0,0.08);
+    padding: 18px;
+  }
+  .search-input {
+    border-radius: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-subtle);
+  }
+  .table thead th { border-top: none !important; font-weight: 800; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container-fluid">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <div>
+        <div class="page-title">Student Performance</div>
+        <div style="opacity:.92">Average marks per student + course-wise marks list</div>
+      </div>
+      <div class="d-flex gap-2">
+        <a class="btn btn-light" href="{{ url_for('analyst.dashboard') }}">
+          <i class="fas fa-home me-2"></i>Dashboard
+        </a>
+        <a class="btn btn-outline-light" href="{{ url_for('analyst.course_analysis') }}">
+          <i class="fas fa-book me-2"></i>Courses
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid pb-5">
+  <div class="row g-3">
+    <div class="col-lg-5">
+      <div class="panel h-100">
+        <div class="fw-bold mb-1" style="font-size:1.1rem;">Average Marks Distribution</div>
+        <div class="text-muted small mb-3">Pie chart grouped into score bands</div>
+        <div style="height: 360px;">
+          <canvas id="avgPie"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <div class="panel mb-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+          <div>
+            <div class="fw-bold" style="font-size:1.1rem;">Students Table</div>
+            <div class="text-muted small">Search by student name</div>
+          </div>
+          <input id="studSearch" class="search-input" placeholder="Search student..." />
+        </div>
+
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th class="text-end">Avg Marks</th>
+              </tr>
+            </thead>
+            <tbody id="studTbody">
+              {% for s in students %}
+              <tr>
+                <td class="fw-bold">{{ s.first_name }} {{ s.last_name }}</td>
+                <td class="text-end">
+                  {% if s.avg_marks is not none %}
+                    {{ s.avg_marks }}
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="fw-bold mb-1" style="font-size:1.1rem;">Course-wise Marks (Raw)</div>
+        <div class="text-muted small mb-3">Useful for audits / debugging</div>
+
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Course</th>
+                <th class="text-end">Marks</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for sc in student_courses %}
+              <tr>
+                <td class="text-muted">{{ sc.user_id }}</td>
+                <td class="fw-bold">{{ sc.course_name }}</td>
+                <td class="text-end">
+                  {% if sc.marks is not none %}{{ sc.marks }}{% else %}<span class="text-muted">—</span>{% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+              {% if student_courses|length == 0 %}
+              <tr>
+                <td colspan="3" class="text-muted text-center py-4">No enrollment marks available.</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const search = document.getElementById('studSearch');
+  const tbody = document.getElementById('studTbody');
+
+  search.addEventListener('input', () => {
+    const q = search.value.toLowerCase().trim();
+    [...tbody.querySelectorAll('tr')].forEach(tr => {
+      tr.style.display = tr.innerText.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+
+  // Build band counts for pie chart from avg marks
+  const avgs = [];
+  {% for s in students %}
+    {% if s.avg_marks is not none %}
+      avgs.push({{ s.avg_marks }});
+    {% endif %}
+  {% endfor %}
+
+  const bands = {
+    '0–39': 0,
+    '40–59': 0,
+    '60–79': 0,
+    '80–100': 0
+  };
+
+  avgs.forEach(v => {
+    if (v < 40) bands['0–39']++;
+    else if (v < 60) bands['40–59']++;
+    else if (v < 80) bands['60–79']++;
+    else bands['80–100']++;
+  });
+
+  const ctx = document.getElementById('avgPie');
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: Object.keys(bands),
+      datasets: [{ data: Object.values(bands), borderWidth: 0 }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+</script>
+{% endblock %}
