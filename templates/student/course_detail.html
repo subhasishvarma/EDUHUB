@@ -1,0 +1,682 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.course_name }} | EduHub{% endblock %}
+
+{% block main_class %}container-fluid{% endblock %}
+
+{% block extra_css %}
+<style>
+    .course-hero {
+        background: linear-gradient(135deg, var(--accent), #8b5cf6);
+        color: white;
+        padding: 80px 0 50px;
+        margin: -80px 0 40px;
+        border-radius: 0 0 30px 30px;
+    }
+
+    .course-hero-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 15px;
+    }
+
+    .course-meta-badges {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    .meta-badge {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .content-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        border: 2px solid var(--border-subtle);
+        margin-bottom: 25px;
+        transition: all 0.3s ease;
+    }
+
+    .content-card:hover {
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border-color: var(--accent);
+    }
+
+    .content-card h3 {
+        font-family: 'Playfair Display', serif;
+        font-weight: 800;
+        color: var(--primary);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .content-card h3 i {
+        color: var(--accent);
+    }
+
+    /* Topic Tags */
+    .topic-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .topic-tag {
+        background: linear-gradient(135deg, var(--accent-soft), rgba(139, 92, 246, 0.1));
+        color: var(--accent);
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        border: 2px solid var(--accent);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .topic-tag:hover {
+        background: var(--accent);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px var(--accent-glow);
+    }
+
+    .topic-tag i {
+        font-size: 0.8rem;
+    }
+
+    /* Textbook Cards */
+    .textbook-item {
+        background: linear-gradient(135deg, #fff5f5, #ffffff);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 15px;
+        border: 2px solid rgba(251, 191, 36, 0.3);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .textbook-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(251, 191, 36, 0.2);
+        border-color: var(--gold);
+    }
+
+    .textbook-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--gold), #f59e0b);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.8rem;
+        flex-shrink: 0;
+    }
+
+    .textbook-details {
+        flex-grow: 1;
+    }
+
+    .textbook-details h5 {
+        font-weight: 800;
+        color: var(--primary);
+        margin: 0 0 8px 0;
+        font-size: 1.1rem;
+    }
+
+    .textbook-details p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    /* Material Items */
+    .material-item {
+        background: var(--bg-light);
+        border-radius: 12px;
+        padding: 15px 20px;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .material-item:hover {
+        background: white;
+        border-color: var(--accent);
+        transform: translateX(5px);
+    }
+
+    .material-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex: 1;
+    }
+
+    .material-icon {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, var(--accent), #8b5cf6);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .material-icon.youtube {
+        background: linear-gradient(135deg, #ff0000, #cc0000);
+    }
+
+    .material-icon.pdf {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .material-icon.book {
+        background: linear-gradient(135deg, var(--gold), #f59e0b);
+    }
+
+    .material-details {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .material-details h5 {
+        font-weight: 700;
+        color: var(--primary);
+        margin: 0 0 4px 0;
+        font-size: 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .material-details p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+
+    .material-link {
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        flex-shrink: 0;
+    }
+
+    .material-link:hover {
+        background: #4f46e5;
+        transform: scale(1.05);
+        color: white;
+    }
+
+    .instructor-card {
+        background: linear-gradient(135deg, #f8fafc, white);
+        border-radius: 16px;
+        padding: 20px;
+        border: 2px solid var(--border-subtle);
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .instructor-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        border-color: var(--accent);
+    }
+
+    .instructor-avatar {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--accent), #8b5cf6);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 900;
+    }
+
+    .instructor-info h5 {
+        font-weight: 700;
+        color: var(--primary);
+        margin: 0 0 5px 0;
+    }
+
+    .instructor-info p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+
+    .grade-display {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border-radius: 16px;
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .grade-value {
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 5px;
+    }
+
+    .grade-label {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text-muted);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        opacity: 0.3;
+        margin-bottom: 15px;
+    }
+
+    .back-btn {
+        margin-bottom: 30px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+        color: var(--accent);
+        transform: translateX(-5px);
+    }
+
+    .sidebar-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        border: 2px solid var(--border-subtle);
+        margin-bottom: 25px;
+    }
+
+    .sidebar-card h4 {
+        font-weight: 800;
+        color: var(--primary);
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: var(--text-muted);
+    }
+
+    .info-value {
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    /* Playlist embed */
+    .playlist-embed {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        margin-bottom: 15px;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .playlist-embed iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Course Hero -->
+<div class="course-hero">
+    <div class="container">
+        <a href="{{ url_for('student.dashboard') }}" class="back-btn" style="color: white; opacity: 0.9;">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        
+        <h1 class="course-hero-title">{{ course.course_name }}</h1>
+        <p style="font-size: 1.2rem; opacity: 0.95; margin-bottom: 0;">
+            <i class="fas fa-university"></i> {{ university.uni_name }}
+        </p>
+        
+        <div class="course-meta-badges">
+            <div class="meta-badge">
+                <i class="fas fa-certificate"></i>
+                {{ course.c_type.value|title if course.c_type else 'Course' }}
+            </div>
+            <div class="meta-badge">
+                <i class="fas fa-calendar-alt"></i>
+                {{ course.duration_weeks }} weeks
+            </div>
+            <div class="meta-badge">
+                <i class="fas fa-map-marker-alt"></i>
+                {{ university.city }}, {{ university.country }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Course Topics -->
+            {% if topics %}
+            <div class="content-card">
+                <h3>
+                    <i class="fas fa-tags"></i>
+                    Course Topics
+                </h3>
+                <div class="topic-tags">
+                    {% for topic in topics %}
+                    <div class="topic-tag">
+                        <i class="fas fa-hashtag"></i>
+                        {{ topic.topic_name }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Reference Textbooks -->
+            {% if textbooks %}
+            <div class="content-card">
+                <h3>
+                    <i class="fas fa-book-reader"></i>
+                    Reference Textbooks
+                </h3>
+                {% for textbook in textbooks %}
+                <div class="textbook-item">
+                    <div class="textbook-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="textbook-details">
+                        <h5>{{ textbook.title }}</h5>
+                        {% if textbook.author %}
+                        <p><i class="fas fa-user"></i> {{ textbook.author }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Course Videos / Playlists -->
+            <div class="content-card">
+                <h3>
+                    <i class="fab fa-youtube"></i>
+                    Video Lectures
+                </h3>
+                
+                {% if videos %}
+                    {% for video in videos %}
+                    <div class="material-item">
+                        <div class="material-info">
+                            <div class="material-icon youtube">
+                                <i class="fab fa-youtube"></i>
+                            </div>
+                            <div class="material-details">
+                                <h5>{{ video.title }}</h5>
+                                <p><i class="fas fa-list"></i> Video Playlist</p>
+                            </div>
+                        </div>
+                        <a href="{{ video.video_url }}" target="_blank" class="material-link">
+                            Watch <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fab fa-youtube"></i>
+                        <p>No video lectures available yet</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Course Notes -->
+            <div class="content-card">
+                <h3>
+                    <i class="fas fa-file-pdf"></i>
+                    Course Notes & Materials
+                </h3>
+                
+                {% if notes %}
+                    {% for note in notes %}
+                    <div class="material-item">
+                        <div class="material-info">
+                            <div class="material-icon pdf">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div class="material-details">
+                                <h5>{{ note.title }}</h5>
+                                <p><i class="fas fa-tag"></i> {{ note.format }}</p>
+                            </div>
+                        </div>
+                        <a href="{{ note.note_url }}" target="_blank" class="material-link">
+                            Download <i class="fas fa-download"></i>
+                        </a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-file-pdf"></i>
+                        <p>No course notes available yet</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Online Books -->
+            {% if books %}
+            <div class="content-card">
+                <h3>
+                    <i class="fas fa-book-open"></i>
+                    Online Resources
+                </h3>
+                
+                {% for book in books %}
+                <div class="material-item">
+                    <div class="material-info">
+                        <div class="material-icon book">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div class="material-details">
+                            <h5>{{ book.title }}</h5>
+                            {% if book.page_count %}
+                            <p><i class="fas fa-file-alt"></i> {{ book.page_count }} pages</p>
+                            {% else %}
+                            <p><i class="fas fa-globe"></i> Online Resource</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <a href="{{ book.book_url }}" target="_blank" class="material-link">
+                        Read <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Instructors -->
+            {% if instructors %}
+            <div class="content-card">
+                <h3>
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    Course Instructors
+                </h3>
+                
+                {% for instructor in instructors %}
+                <div class="instructor-card">
+                    <div class="instructor-avatar">
+                        {{ instructor.first_name[0]}}{{ instructor.last_name[0] if instructor.last_name else '' }}
+                    </div>
+                    <div class="instructor-info">
+                        <h5>{{ instructor.first_name }} {{ instructor.last_name or '' }}</h5>
+                        <p>
+                            {% if instructor.bio %}
+                                {{ instructor.bio[:100] }}{% if instructor.bio|length > 100 %}...{% endif %}
+                            {% else %}
+                                Instructor
+                            {% endif %}
+                        </p>
+                        {% if instructor.phone_number %}
+                        <p><i class="fas fa-phone"></i> {{ instructor.phone_number }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Grade Card -->
+            {% if enrollment.grade %}
+            <div class="grade-display">
+                <div class="grade-value">{{ "%.1f"|format(enrollment.grade) }}%</div>
+                <div class="grade-label">Your Grade</div>
+            </div>
+            {% endif %}
+
+            <!-- Course Info -->
+            <div class="sidebar-card">
+                <h4><i class="fas fa-info-circle"></i> Course Information</h4>
+                
+                <div class="info-row">
+                    <span class="info-label">Enrolled</span>
+                    <span class="info-value">{{ enrollment.enrollment_date.strftime('%b %d, %Y') if enrollment.enrollment_date else 'Recently' }}</span>
+                </div>
+                
+                {% if enrollment.due_by %}
+                <div class="info-row">
+                    <span class="info-label">Due Date</span>
+                    <span class="info-value">{{ enrollment.due_by.strftime('%b %d, %Y') }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="info-row">
+                    <span class="info-label">Duration</span>
+                    <span class="info-value">{{ course.duration_weeks }} weeks</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Type</span>
+                    <span class="info-value">{{ course.c_type.value|title if course.c_type else 'Course' }}</span>
+                </div>
+
+                {% if topics %}
+                <div class="info-row">
+                    <span class="info-label">Topics</span>
+                    <span class="info-value">{{ topics|length }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="sidebar-card">
+                <h4><i class="fas fa-chart-pie"></i> Course Materials</h4>
+                
+                <div class="info-row">
+                    <span class="info-label">Videos</span>
+                    <span class="info-value">{{ videos|length }}</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Notes</span>
+                    <span class="info-value">{{ notes|length }}</span>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Textbooks</span>
+                    <span class="info-value">{{ textbooks|length }}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Resources</span>
+                    <span class="info-value">{{ books|length }}</span>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="sidebar-card">
+                <h4><i class="fas fa-cog"></i> Actions</h4>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <a href="{{ url_for('student.grades') }}" class="btn btn-eduhub-primary w-100">
+                        <i class="fas fa-chart-bar"></i> View Grades
+                    </a>
+                    <form method="POST" action="{{ url_for('student.unenroll', course_id=course.course_id) }}" onsubmit="return confirm('Are you sure you want to unenroll from this course?');">
+                        <button type="submit" class="btn btn-eduhub-outline w-100" style="border-color: #ef4444; color: #ef4444;">
+                            <i class="fas fa-times-circle"></i> Unenroll
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
