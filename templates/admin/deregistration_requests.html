@@ -136,7 +136,7 @@
                                       onsubmit="return confirm('Approve and deregister this student from the course?');">
                                     <input type="hidden" name="action" value="approve">
                                     <input type="hidden" name="request_id" value="{{ r.request_id }}">
-                                    <button type="submit" class="btn btn-success btn-sm mb-1">
+                                    <button type="submit" class="btn btn-danger btn-sm mb-1">
                                         <i class="fas fa-check me-1"></i>Approve
                                     </button>
                                 </form>
@@ -144,8 +144,16 @@
                                       onsubmit="return confirm('Reject this deregistration request?');">
                                     <input type="hidden" name="action" value="reject">
                                     <input type="hidden" name="request_id" value="{{ r.request_id }}">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm mb-1">
+                                    <button type="submit" class="btn btn-success btn-sm mb-1">
                                         <i class="fas fa-times me-1"></i>Reject
+                                    </button>
+                                </form>
+                                <form method="POST" class="d-inline"
+                                      onsubmit="return confirm('Cancel this deregistration request and remove it?');">
+                                    <input type="hidden" name="action" value="cancel">
+                                    <input type="hidden" name="request_id" value="{{ r.request_id }}">
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm mb-1">
+                                        <i class="fas fa-ban me-1"></i>Cancel Request
                                     </button>
                                 </form>
                             {% else %}

@@ -9,8 +9,8 @@
     .course-hero {
         background: linear-gradient(135deg, var(--accent), #8b5cf6);
         color: white;
-        padding: 80px 0 50px;
-        margin: -80px 0 40px;
+        padding: 100px 0 50px;
+        margin: 0 0 40px;
         border-radius: 0 0 30px 30px;
     }
 
@@ -65,6 +65,86 @@
 
     .content-card h3 i {
         color: var(--accent);
+    }
+
+    /* Module, Topic, Subtopic Structure */
+    .module-item {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 3px solid var(--accent-soft);
+    }
+
+    .module-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .module-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--primary);
+        margin: 0 0 20px 0;
+        padding: 15px 0 15px 15px;
+        border-left: 4px solid var(--accent);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .module-title::before {
+        /* content: '📚'; */
+        font-size: 1.4rem;
+    }
+
+    .topic-item {
+        margin-left: 30px;
+        margin-bottom: 25px;
+        padding-left: 20px;
+        border-left: 3px solid var(--accent-soft);
+    }
+
+    .topic-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin: 0 0 15px 0;
+        padding: 10px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .topic-title::before {
+        /* content: '-'; */
+        font-size: 1.1rem;
+    }
+
+    .subtopic-item {
+        margin-left: 20px;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: var(--accent-soft);
+        border-radius: 12px;
+        border-left: 3px solid var(--accent);
+    }
+
+    .subtopic-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin: 0 0 15px 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .subtopic-title::before {
+        content: '✓';
+        color: var(--accent);
+        font-weight: 900;
     }
 
     /* Topic Tags */
@@ -425,141 +505,98 @@
     <div class="row">
         <!-- Main Content -->
         <div class="col-lg-8">
-            <!-- Course Topics -->
-            {% if topics %}
+            <!-- NEW: Dynamic Course Content -->
             <div class="content-card">
                 <h3>
-                    <i class="fas fa-tags"></i>
-                    Course Topics
-                </h3>
-                <div class="topic-tags">
-                    {% for topic in topics %}
-                    <div class="topic-tag">
-                        <i class="fas fa-hashtag"></i>
-                        {{ topic.topic_name }}
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Reference Textbooks -->
-            {% if textbooks %}
-            <div class="content-card">
-                <h3>
-                    <i class="fas fa-book-reader"></i>
-                    Reference Textbooks
-                </h3>
-                {% for textbook in textbooks %}
-                <div class="textbook-item">
-                    <div class="textbook-icon">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <div class="textbook-details">
-                        <h5>{{ textbook.title }}</h5>
-                        {% if textbook.author %}
-                        <p><i class="fas fa-user"></i> {{ textbook.author }}</p>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-
-            <!-- Course Videos / Playlists -->
-            <div class="content-card">
-                <h3>
-                    <i class="fab fa-youtube"></i>
-                    Video Lectures
+                    <i class="fas fa-cubes"></i>
+                    Course Content
                 </h3>
                 
-                {% if videos %}
-                    {% for video in videos %}
-                    <div class="material-item">
-                        <div class="material-info">
-                            <div class="material-icon youtube">
-                                <i class="fab fa-youtube"></i>
+                {% for module in modules %}
+                <div class="module-item">
+                    <h4 class="module-title">{{ module.module_title }}</h4>
+                    
+                    {% for topic in module.topics %}
+                    <div class="topic-item">
+                        <h5 class="topic-title">{{ topic.topic_title }}</h5>
+                        
+                        {% for subtopic in topic.subtopics %}
+                        <div class="subtopic-item">
+                            <h6 class="subtopic-title">{{ subtopic.subtopic_title }}</h6>
+                            
+                            {% for content in subtopic.contents %}
+                            <div class="material-item">
+                                <div class="material-info">
+                                    <div class="material-icon {{ content.content_type }}">
+                                        {% if content.content_type == 'video' %}
+                                            <i class="fab fa-youtube"></i>
+                                        {% elif content.content_type == 'notes' %}
+                                            <i class="fas fa-file-pdf"></i>
+                                        {% else %}
+                                            <i class="fas fa-book-open"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="material-details">
+                                        <h5>{{ content.title }}</h5>
+                                        <p><i class="fas fa-tag"></i> {{ content.content_type|title }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ content.url }}" target="_blank" class="material-link">
+                                    View <i class="fas fa-external-link-alt"></i>
+                                </a>
                             </div>
-                            <div class="material-details">
-                                <h5>{{ video.title }}</h5>
-                                <p><i class="fas fa-list"></i> Video Playlist</p>
-                            </div>
+                            {% endfor %}
                         </div>
-                        <a href="{{ video.video_url }}" target="_blank" class="material-link">
-                            Watch <i class="fas fa-external-link-alt"></i>
-                        </a>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty-state">
-                        <i class="fab fa-youtube"></i>
-                        <p>No video lectures available yet</p>
-                    </div>
-                {% endif %}
-            </div>
-
-            <!-- Course Notes -->
-            <div class="content-card">
-                <h3>
-                    <i class="fas fa-file-pdf"></i>
-                    Course Notes & Materials
-                </h3>
-                
-                {% if notes %}
-                    {% for note in notes %}
-                    <div class="material-item">
-                        <div class="material-info">
-                            <div class="material-icon pdf">
-                                <i class="fas fa-file-pdf"></i>
-                            </div>
-                            <div class="material-details">
-                                <h5>{{ note.title }}</h5>
-                                <p><i class="fas fa-tag"></i> {{ note.format }}</p>
-                            </div>
-                        </div>
-                        <a href="{{ note.note_url }}" target="_blank" class="material-link">
-                            Download <i class="fas fa-download"></i>
-                        </a>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty-state">
-                        <i class="fas fa-file-pdf"></i>
-                        <p>No course notes available yet</p>
-                    </div>
-                {% endif %}
-            </div>
-
-            <!-- Online Books -->
-            {% if books %}
-            <div class="content-card">
-                <h3>
-                    <i class="fas fa-book-open"></i>
-                    Online Resources
-                </h3>
-                
-                {% for book in books %}
-                <div class="material-item">
-                    <div class="material-info">
-                        <div class="material-icon book">
-                            <i class="fas fa-book-open"></i>
-                        </div>
-                        <div class="material-details">
-                            <h5>{{ book.title }}</h5>
-                            {% if book.page_count %}
-                            <p><i class="fas fa-file-alt"></i> {{ book.page_count }} pages</p>
+                        {% endfor %}
+                        <!-- Assignments Section -->
+                        <div class="assignment-section mt-3">
+                            <strong>Assignments</strong>
+                            {% if topic.assignments and topic.assignments|length > 0 %}
+                                <ul class="list-group mb-2">
+                                    {% for a in topic.assignments %}
+                                    {% set submission = student_submissions|selectattr('assignment_id', 'equalto', a.assignment_id)|first %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span><i class="fas fa-tasks me-2"></i>{{ a.title }}</span>
+                                            {% if a.due_date %}
+                                            <span class="badge bg-warning ms-2">Due: {{ a.due_date.strftime('%b %d, %Y') }}</span>
+                                            {% endif %}
+                                            {% if a.description %}
+                                            <p class="text-muted small mb-0">{{ a.description }}</p>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            {% if submission %}
+                                                {% if submission.grade is not none %}
+                                                    <span class="badge bg-success">Graded: {{ submission.grade }}</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Submitted</span>
+                                                {% endif %}
+                                            {% else %}
+                                                <form action="{{ url_for('student.submit_assignment', course_id=course.course_id, assignment_id=a.assignment_id) }}" method="POST" class="d-inline">
+                                                    <button type="submit" class="btn btn-primary btn-sm">Hand In</button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
                             {% else %}
-                            <p><i class="fas fa-globe"></i> Online Resource</p>
+                                <div class="text-muted small mb-2">No assignments added yet for this topic.</div>
                             {% endif %}
                         </div>
                     </div>
-                    <a href="{{ book.book_url }}" target="_blank" class="material-link">
-                        Read <i class="fas fa-external-link-alt"></i>
-                    </a>
+                    {% endfor %}
                 </div>
                 {% endfor %}
+
+                {% if not modules %}
+                <div class="empty-state">
+                    <i class="fas fa-box-open"></i>
+                    <p>No course content available yet.</p>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
 
             <!-- Instructors -->
             {% if instructors %}

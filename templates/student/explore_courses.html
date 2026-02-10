@@ -9,8 +9,8 @@
     .explore-header {
         background: linear-gradient(135deg, var(--accent), #8b5cf6);
         color: white;
-        padding: 60px 0 40px;
-        margin: -80px 0 40px;
+        padding: 100px 0 40px;
+        margin: 0 0 40px;
         border-radius: 0 0 30px 30px;
     }
 
@@ -146,15 +146,18 @@
         gap: 15px;
         align-items: center;
         flex-wrap: wrap;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .filter-label {
         font-weight: 700;
         color: var(--primary);
+        white-space: nowrap;
     }
 
     .filter-btn {
-        padding: 8px 20px;
+        padding: 10px 24px;
         border-radius: 20px;
         border: 2px solid var(--border-subtle);
         background: white;
@@ -162,6 +165,9 @@
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
+        white-space: nowrap;
+        min-width: fit-content;
+        flex-shrink: 0;
     }
 
     .filter-btn:hover, .filter-btn.active {
@@ -213,10 +219,7 @@
     <!-- Filter Bar -->
     <div class="filter-bar">
         <span class="filter-label">Filter by:</span>
-        <button class="filter-btn active" onclick="filterCourses('all')">All Courses</button>
-        <button class="filter-btn" onclick="filterCourses('degree')">Degree</button>
-        <button class="filter-btn" onclick="filterCourses('diploma')">Diploma</button>
-        <button class="filter-btn" onclick="filterCourses('certificate')">Certificate</button>
+        <button class="filter-btn active" data-filter="all" onclick="filterCourses('all', event)">All Courses</button>
     </div>
 
     <!-- Course Statistics -->
@@ -230,7 +233,7 @@
     {% if all_courses %}
         <div class="course-grid">
             {% for course, university in all_courses %}
-            <div class="explore-course-card" data-course-type="{{ course.c_type.value if course.c_type else 'course' }}">
+            <div class="explore-course-card" data-course-type="{{ course.c_type.value|lower if course.c_type else 'all' }}">
                 <div class="explore-course-header">
                     <span class="course-type-tag">{{ course.c_type.value|title if course.c_type else 'Course' }}</span>
                     <h4>{{ course.course_name }}</h4>
@@ -287,17 +290,21 @@
 
 {% block scripts %}
 <script>
-function filterCourses(type) {
+function filterCourses(type, event) {
     // Update active button
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    event.target.classList.add('active');
-
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    } else {
+        document.querySelector(`.filter-btn[data-filter="${type}"]`).classList.add('active');
+    }
     // Filter cards
     const cards = document.querySelectorAll('.explore-course-card');
     cards.forEach(card => {
-        const courseType = card.getAttribute('data-course-type');
+        let courseType = card.getAttribute('data-course-type');
+        if (!courseType) courseType = 'all';
         if (type === 'all' || courseType === type) {
             card.style.display = 'flex';
         } else {
