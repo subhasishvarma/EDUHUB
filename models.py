@@ -194,6 +194,24 @@ class TopicSubtopic(db.Model):
     topic = db.relationship('ModuleTopic', backref=db.backref('subtopics', lazy=True, cascade='all, delete-orphan'))
 
 
+# Assignments attached to a specific subtopic
+class SubtopicAssignment(db.Model):
+    __tablename__ = 'subtopicassignments'
+
+    assignment_id = db.Column(db.Integer, primary_key=True)
+    subtopic_id = db.Column(db.Integer, db.ForeignKey('topicsubtopics.subtopic_id', ondelete='CASCADE'), nullable=False)
+
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+    due_date = db.Column(db.Date)
+    created_at = db.Column(db.TIMESTAMP, server_default=func.current_timestamp())
+
+    subtopic = db.relationship(
+        'TopicSubtopic',
+        backref=db.backref('assignments', lazy=True, cascade='all, delete-orphan')
+    )
+
+
 # Assignments attached to a specific topic
 class TopicAssignment(db.Model):
     __tablename__ = 'topicassignments'

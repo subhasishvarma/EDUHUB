@@ -2,19 +2,249 @@
 
 {% block title %}Analyst Dashboard | EduHub{% endblock %}
 
-{% block main_class %}container{% endblock %}
+{% block main_class %}container-fluid{% endblock %}
+
+{% block extra_css %}
+<style>
+  .dash-header {
+    background: var(--accent);
+    color: white;
+    padding: 60px 0 40px;
+    margin-bottom: 35px;
+    border-radius: 0 0 30px 30px;
+  }
+
+  .dash-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+  .dash-subtitle { opacity: 0.9; }
+
+  .stat-card {
+    background: white;
+    border-radius: 18px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.08);
+    padding: 18px 18px;
+    height: 100%;
+  }
+  .stat-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .stat-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.10);
+  }
+  .stat-label { color: var(--muted); font-weight: 600; font-size: 0.95rem; }
+  .stat-value { font-size: 1.9rem; font-weight: 900; margin: 0; }
+
+  .panel {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 16px 50px rgba(0,0,0,0.08);
+    padding: 18px;
+    height: 100%;
+  }
+  .panel-title {
+    font-weight: 900;
+    margin-bottom: 4px;
+  }
+  .panel-subtitle { color: var(--muted); margin-bottom: 14px; }
+
+  .quick-link {
+    background: #fff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;                 /* ✅ slightly bigger radius */
+    padding: 22px 20px;                  /* ✅ bigger block */
+    min-height: 110px;                   /* ✅ taller cards */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 12px 34px rgba(0,0,0,0.07);
+  }
+  .quick-left { display: flex; align-items: center; gap: 16px; }  /* ✅ more spacing */
+  .quick-badge {
+    width: 56px; height: 56px;          /* ✅ bigger icon block */
+    border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    flex-shrink: 0;
+  }
+  .quick-badge i { font-size: 1.25rem; } /* ✅ bigger icon */
+
+  .quick-title { font-weight: 900; font-size: 1.15rem; line-height: 1.2; } /* ✅ bigger title */
+  .quick-sub { font-size: 0.95rem; } /* ✅ bigger subtitle */
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center py-5">
-    <div class="col-md-8">
-        <div class="page-card text-center">
-            <div class="mb-4" style="font-size: 4rem; color: #f43f5e; opacity: 0.8;"><i class="fas fa-chart-line"></i></div>
-            <h2 class="card-title mb-2">Analyst Dashboard</h2>
-            <p class="text-muted">Welcome, {{ current_user.first_name }}! Your analytics dashboard is coming soon.</p>
-            <a href="{{ url_for('main.profile') }}" class="btn btn-eduhub-primary mt-3">
-                <i class="fas fa-user me-2"></i>View Profile
-            </a>
+<div class="dash-header">
+  <div class="container-fluid">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div>
+        <div class="dash-title">Analytics Dashboard</div>
+        <div class="dash-subtitle">
+          Welcome, {{ current_user.first_name }} — track enrollments, marks, and performance across EduHub.
         </div>
+      </div>
+      <div class="d-flex gap-2">
+        <a class="btn btn-light" href="{{ url_for('analyst.course_analysis') }}">
+          <i class="fas fa-book me-2"></i>Course Analytics
+        </a>
+        <a class="btn btn-outline-light" href="{{ url_for('main.profile') }}">
+          <i class="fas fa-user me-2"></i>Profile
+        </a>
+      </div>
     </div>
+  </div>
+</div>
+
+<div class="container-fluid pb-5">
+
+  <!-- 1 x 4 stats -->
+  <div class="row g-3 mb-3">
+    <div class="col-sm-6 col-lg-3">
+      <div class="stat-card">
+        <div class="stat-top">
+          <div>
+            <div class="stat-label">Students</div>
+            <p class="stat-value">{{ stats.students }}</p>
+          </div>
+          <div class="stat-icon" style="background: #10b981;">
+            <i class="fas fa-user-graduate"></i>
+          </div>
+        </div>
+        <div class="text-muted small">Total registered learners</div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+      <div class="stat-card">
+        <div class="stat-top">
+          <div>
+            <div class="stat-label">Instructors</div>
+            <p class="stat-value">{{ stats.instructors }}</p>
+          </div>
+          <div class="stat-icon" style="background: var(--accent);">
+            <i class="fas fa-chalkboard-teacher"></i>
+          </div>
+        </div>
+        <div class="text-muted small">Content creators & mentors</div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+      <div class="stat-card">
+        <div class="stat-top">
+          <div>
+            <div class="stat-label">Courses</div>
+            <p class="stat-value">{{ stats.courses }}</p>
+          </div>
+          <div class="stat-icon" style="background: #f59e0b;">
+            <i class="fas fa-book-open"></i>
+          </div>
+        </div>
+        <div class="text-muted small">Active course catalog</div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+      <div class="stat-card">
+        <div class="stat-top">
+          <div>
+            <div class="stat-label">Enrollments</div>
+            <p class="stat-value">{{ stats.enrollments }}</p>
+          </div>
+          <div class="stat-icon" style="background: #ef4444;">
+            <i class="fas fa-clipboard-check"></i>
+          </div>
+        </div>
+        <div class="text-muted small">Total course enrollments</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 x 2 performance blocks (bigger) -->
+  <div class="panel">
+    <div class="panel-title">Performance Pages</div>
+    <div class="panel-subtitle">Open detailed analytics for each category</div>
+
+    <div class="row g-3"> <!-- ✅ more gap -->
+      <div class="col-md-6">
+        <a class="quick-link" href="{{ url_for('analyst.student_performance') }}">
+          <div class="quick-left">
+            <div class="quick-badge" style="background: #10b981;">
+              <i class="fas fa-user-graduate"></i>
+            </div>
+            <div>
+              <div class="quick-title">Student Performance</div>
+              <div class="text-muted quick-sub">Average marks across courses</div>
+            </div>
+          </div>
+          <i class="fas fa-arrow-right text-muted"></i>
+        </a>
+      </div>
+
+      <div class="col-md-6">
+        <a class="quick-link" href="{{ url_for('analyst.instructor_performance') }}">
+          <div class="quick-left">
+            <div class="quick-badge" style="background: var(--accent);">
+              <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <div>
+              <div class="quick-title">Instructor Performance</div>
+              <div class="text-muted quick-sub">Courses handled & avg marks</div>
+            </div>
+          </div>
+          <i class="fas fa-arrow-right text-muted"></i>
+        </a>
+      </div>
+
+      <div class="col-md-6">
+        <a class="quick-link" href="{{ url_for('analyst.course_analysis') }}">
+          <div class="quick-left">
+            <div class="quick-badge" style="background: #f59e0b;">
+              <i class="fas fa-book"></i>
+            </div>
+            <div>
+              <div class="quick-title">Course Performance</div>
+              <div class="text-muted quick-sub">Enrollments & average marks</div>
+            </div>
+          </div>
+          <i class="fas fa-arrow-right text-muted"></i>
+        </a>
+      </div>
+
+      <div class="col-md-6">
+        <a class="quick-link" href="{{ url_for('analyst.university_performance') }}">
+          <div class="quick-left">
+            <div class="quick-badge" style="background: #ef4444;">
+              <i class="fas fa-university"></i>
+            </div>
+            <div>
+              <div class="quick-title">University Performance</div>
+              <div class="text-muted quick-sub">Courses, students & averages</div>
+            </div>
+          </div>
+          <i class="fas fa-arrow-right text-muted"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
 </div>
 {% endblock %}

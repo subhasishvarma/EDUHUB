@@ -6,13 +6,42 @@
 
 {% block extra_css %}
 <style>
+    /* === EXACT Dashboard "Explore More Courses" button style === */
+    .explore-btn {
+        background: var(--accent);
+        border: none;
+        color: white;
+        padding: 16px 40px;
+        font-weight: 700;
+        border-radius: 50px;
+        font-size: 1.05rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 10px 30px var(--accent-glow);
+        text-decoration: none;
+        width: fit-content;
+    }
+
+    .explore-btn:hover {
+        color: white;
+    }
+
+    /* IMPORTANT: button icon must NOT inherit huge icon styles */
+    .explore-btn i {
+        color: #fff !important;
+        font-size: 0.95rem !important;
+        line-height: 1 !important;
+        margin: 0 !important;
+        opacity: 1 !important;
+    }
+
     .grades-header {
-        background: linear-gradient(135deg, #10b981, #059669);
+        background: #10b981;
         color: white;
         padding: 60px 0 40px;
         margin: 0 0 40px;
         border-radius: 0 0 30px 30px;
-
     }
 
     .grades-title {
@@ -35,7 +64,7 @@
     .gpa-value {
         font-size: 4rem;
         font-weight: 900;
-        background: linear-gradient(135deg, #10b981, #059669);
+        background: #10b981;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin-bottom: 10px;
@@ -53,13 +82,6 @@
         padding: 25px;
         border: 2px solid var(--border-subtle);
         margin-bottom: 20px;
-        transition: all 0.3s ease;
-    }
-
-    .grade-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-        border-color: var(--accent);
     }
 
     .grade-card-header {
@@ -87,10 +109,10 @@
         text-align: center;
     }
 
-    .grade-A { background: linear-gradient(135deg, #10b981, #059669); color: white; }
-    .grade-B { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
-    .grade-C { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
-    .grade-D { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+    .grade-A { background: #10b981; color: white; }
+    .grade-B { background: #3b82f6; color: white; }
+    .grade-C { background: #f59e0b; color: white; }
+    .grade-D { background: #ef4444; color: white; }
     .grade-pending { background: #e5e7eb; color: #6b7280; }
 
     .course-details {
@@ -121,7 +143,8 @@
         border: 2px dashed var(--border-subtle);
     }
 
-    .no-grades i {
+    /* ONLY the big empty icon */
+    .no-grades .empty-icon {
         font-size: 5rem;
         color: var(--accent);
         opacity: 0.3;
@@ -136,12 +159,10 @@
         color: var(--primary);
         text-decoration: none;
         font-weight: 600;
-        transition: all 0.3s ease;
     }
 
     .back-btn:hover {
         color: var(--accent);
-        transform: translateX(-5px);
     }
 </style>
 {% endblock %}
@@ -228,11 +249,14 @@
     {% else %}
         <!-- No Grades -->
         <div class="no-grades">
-            <i class="fas fa-chart-line"></i>
+            <i class="fas fa-chart-line empty-icon"></i>
             <h4 style="color: var(--primary); font-weight: 700; margin-bottom: 10px;">No Grades Yet</h4>
             <p style="color: var(--text-muted); margin-bottom: 30px;">Enroll in courses to start tracking your grades.</p>
-            <a href="{{ url_for('student.explore_courses') }}" class="btn btn-eduhub-primary">
-                <i class="fas fa-compass"></i> Explore Courses
+
+            <!-- EXACT dashboard style button -->
+            <a href="{{ url_for('student.explore_courses') }}" class="explore-btn">
+                <i class="fas fa-compass"></i>
+                Explore More Courses
             </a>
         </div>
     {% endif %}

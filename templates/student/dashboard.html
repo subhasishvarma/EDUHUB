@@ -7,7 +7,7 @@
 {% block extra_css %}
 <style>
     .dashboard-header {
-        background: linear-gradient(135deg, var(--accent), #8b5cf6);
+        background: var(--accent);
         color: white;
         padding: 60px 0 40px;
         margin-bottom: 40px;
@@ -84,21 +84,14 @@
         border-radius: 20px;
         overflow: hidden;
         border: 2px solid var(--border-subtle);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: pointer;
         height: 100%;
         display: flex;
         flex-direction: column;
     }
 
-    .course-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 50px rgba(99, 102, 241, 0.2);
-        border-color: var(--accent);
-    }
-
     .course-card-header {
-        background: linear-gradient(135deg, var(--accent), #8b5cf6);
+        background: var(--accent);
         padding: 20px;
         color: white;
         position: relative;
@@ -176,12 +169,10 @@
         border-radius: 20px;
         font-weight: 600;
         font-size: 0.85rem;
-        transition: all 0.3s ease;
     }
 
     .view-course-btn:hover {
         background: #4f46e5;
-        transform: scale(1.05);
     }
 
     .empty-state {
@@ -192,7 +183,8 @@
         border: 2px dashed var(--border-subtle);
     }
 
-    .empty-state i {
+    /* big empty icon only */
+    .empty-state .empty-icon {
         font-size: 5rem;
         color: var(--accent);
         opacity: 0.3;
@@ -211,7 +203,7 @@
     }
 
     .explore-btn {
-        background: linear-gradient(135deg, var(--accent), #4f46e5);
+        background: var(--accent);
         border: none;
         color: white;
         padding: 16px 40px;
@@ -221,15 +213,22 @@
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        transition: all 0.3s ease;
         box-shadow: 0 10px 30px var(--accent-glow);
         text-decoration: none;
+        width: fit-content;
     }
 
     .explore-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
         color: white;
+    }
+
+    /* keep button icon small (don’t inherit big empty icon style) */
+    .explore-btn i {
+        color: #fff !important;
+        font-size: 0.95rem !important;
+        line-height: 1 !important;
+        opacity: 1 !important;
+        margin: 0 !important;
     }
 
     .quick-stats {
@@ -245,13 +244,6 @@
         padding: 20px;
         border: 2px solid var(--border-subtle);
         text-align: center;
-        transition: all 0.3s ease;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        border-color: var(--accent);
     }
 
     .stat-icon {
@@ -343,6 +335,7 @@
                     <i class="fas fa-compass"></i>
                     Explore More Courses
                 </a>
+
                 <a href="{{ url_for('student.grades') }}" class="btn btn-eduhub-outline">
                     <i class="fas fa-chart-bar"></i>
                     View All Grades
@@ -408,12 +401,14 @@
             {% else %}
                 <!-- Empty State -->
                 <div class="empty-state">
-                    <i class="fas fa-book-open"></i>
+                    <i class="fas fa-book-open empty-icon"></i>
                     <h4>No Courses Yet</h4>
                     <p>You haven't enrolled in any courses yet. Start your learning journey today!</p>
-                    <a href="{{ url_for('student.explore_courses') }}" class="btn btn-eduhub-primary">
+
+                    <!-- CHANGED: same style as Explore More Courses -->
+                    <a href="{{ url_for('student.explore_courses') }}" class="explore-btn">
                         <i class="fas fa-compass"></i>
-                        Browse Available Courses
+                        Explore More Courses
                     </a>
                 </div>
             {% endif %}
@@ -488,4 +483,3 @@
     </div>
 </div>
 {% endblock %}
-
