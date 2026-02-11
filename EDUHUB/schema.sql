@@ -216,6 +216,16 @@ CREATE TABLE IF NOT EXISTS subtopiccontents (
     content_order INT DEFAULT 1
 );
 
+-- 21b) SubtopicAssignments (assignments per subtopic)
+CREATE TABLE IF NOT EXISTS subtopicassignments (
+    assignment_id SERIAL PRIMARY KEY,
+    subtopic_id INT NOT NULL REFERENCES topicsubtopics(subtopic_id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    due_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- 22) TopicAssignments (assignments per topic)
 CREATE TABLE IF NOT EXISTS topicassignments (
     assignment_id SERIAL PRIMARY KEY,

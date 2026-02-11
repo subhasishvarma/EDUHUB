@@ -42,7 +42,7 @@
   color: var(--text-muted);
 }
 .course-tabs .nav-link.active {
-  background: linear-gradient(135deg, var(--accent), #4f46e5);
+  background: var(--accent);
   color: #fff;
 }
 .accordion-item {
@@ -329,39 +329,6 @@
 
                             <div class="card mb-3 border-0 shadow-sm rounded-4">
                               <div class="card-header">
-                                <strong>Assignments</strong>
-                              </div>
-                              <div class="card-body">
-                                {% if t.assignments and t.assignments|length > 0 %}
-                                  <ul class="list-group mb-3">
-                                    {% for a in t.assignments %}
-                                      <li class="list-group-item d-flex justify-content-between align-items-start">
-                                        <div class="me-3">
-                                          <div class="d-flex align-items-center gap-2 flex-wrap">
-                                            <strong>{{ a.title }}</strong>
-                                            {% if a.due_date %}
-                                              <span class="badge bg-light text-muted border">
-                                                Due: {{ a.due_date.strftime('%Y-%m-%d') }}
-                                              </span>
-                                            {% endif %}
-                                          </div>
-                                          {% if a.description %}
-                                            <div class="small text-muted mt-1">
-                                              {{ a.description }}
-                                            </div>
-                                          {% endif %}
-                                        </div>
-                                      </li>
-                                    {% endfor %}
-                                  </ul>
-                                {% else %}
-                                  <div class="text-muted small mb-2">No assignments added yet for this topic.</div>
-                                {% endif %}
-                              </div>
-                            </div>
-
-                            <div class="card mb-3 border-0 shadow-sm rounded-4">
-                              <div class="card-header">
                                 <strong>Add Subtopic + Content</strong>
                               </div>
                               <div class="card-body">
@@ -445,6 +412,52 @@
                                               class="mb-3">
                                           <button class="btn btn-sm btn-outline-danger" type="submit">Delete Subtopic</button>
                                         </form>
+
+                                        <div class="card mb-3">
+                                          <div class="card-header">
+                                            <strong>Assignments</strong>
+                                          </div>
+                                          <div class="card-body">
+                                            {% if st.assignments and st.assignments|length > 0 %}
+                                              <ul class="list-group mb-3">
+                                                {% for a in st.assignments %}
+                                                  <li class="list-group-item">
+                                                    <strong>{{ a.title }}</strong>
+                                                    {% if a.due_date %}
+                                                      <span class="badge bg-light text-muted border ms-2">
+                                                        Due: {{ a.due_date.strftime('%Y-%m-%d') }}
+                                                      </span>
+                                                    {% endif %}
+                                                    {% if a.description %}
+                                                      <div class="small text-muted mt-1">{{ a.description }}</div>
+                                                    {% endif %}
+                                                  </li>
+                                                {% endfor %}
+                                              </ul>
+                                            {% else %}
+                                              <div class="text-muted small mb-2">No assignments yet for this subtopic.</div>
+                                            {% endif %}
+                                            <form method="POST"
+                                                  action="{{ url_for('instructor.add_subtopic_assignment', subtopic_id=st.subtopic_id) }}"
+                                                  class="row g-2 align-items-end">
+                                              <div class="col-md-4">
+                                                <label class="form-label mb-1">Assignment Title</label>
+                                                <input class="form-control" name="assignment_title" placeholder="e.g., Quiz on TCP" required>
+                                              </div>
+                                              <div class="col-md-3">
+                                                <label class="form-label mb-1">Description</label>
+                                                <input class="form-control" name="assignment_description" placeholder="Optional">
+                                              </div>
+                                              <div class="col-md-3">
+                                                <label class="form-label mb-1">Due Date</label>
+                                                <input class="form-control" name="due_date" type="date" placeholder="YYYY-MM-DD">
+                                              </div>
+                                              <div class="col-md-2 d-grid">
+                                                <button class="btn btn-eduhub-primary" type="submit">Add Assignment</button>
+                                              </div>
+                                            </form>
+                                          </div>
+                                        </div>
 
                                         <div class="card mb-3">
                                           <div class="card-header">

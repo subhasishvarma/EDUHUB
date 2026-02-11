@@ -7,7 +7,7 @@
 {% block extra_css %}
 <style>
     .course-hero {
-        background: linear-gradient(135deg, var(--accent), #8b5cf6);
+        background: var(--accent);
         color: white;
         padding: 100px 0 50px;
         margin: 0 0 40px;
@@ -45,12 +45,6 @@
         padding: 30px;
         border: 2px solid var(--border-subtle);
         margin-bottom: 25px;
-        transition: all 0.3s ease;
-    }
-
-    .content-card:hover {
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        border-color: var(--accent);
     }
 
     .content-card h3 {
@@ -155,24 +149,16 @@
     }
 
     .topic-tag {
-        background: linear-gradient(135deg, var(--accent-soft), rgba(139, 92, 246, 0.1));
+        background: var(--accent-soft);
         color: var(--accent);
         padding: 10px 20px;
         border-radius: 30px;
         font-weight: 700;
         font-size: 0.9rem;
         border: 2px solid var(--accent);
-        transition: all 0.3s ease;
         display: inline-flex;
         align-items: center;
         gap: 8px;
-    }
-
-    .topic-tag:hover {
-        background: var(--accent);
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px var(--accent-glow);
     }
 
     .topic-tag i {
@@ -181,27 +167,20 @@
 
     /* Textbook Cards */
     .textbook-item {
-        background: linear-gradient(135deg, #fff5f5, #ffffff);
+        background: #fff5f5;
         border-radius: 16px;
         padding: 20px;
         margin-bottom: 15px;
         border: 2px solid rgba(251, 191, 36, 0.3);
-        transition: all 0.3s ease;
         display: flex;
         align-items: center;
         gap: 20px;
     }
 
-    .textbook-item:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(251, 191, 36, 0.2);
-        border-color: var(--gold);
-    }
-
     .textbook-icon {
         width: 60px;
         height: 60px;
-        background: linear-gradient(135deg, var(--gold), #f59e0b);
+        background: var(--gold);
         border-radius: 12px;
         display: flex;
         align-items: center;
@@ -237,14 +216,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        transition: all 0.3s ease;
         border: 2px solid transparent;
-    }
-
-    .material-item:hover {
-        background: white;
-        border-color: var(--accent);
-        transform: translateX(5px);
     }
 
     .material-info {
@@ -257,7 +229,7 @@
     .material-icon {
         width: 45px;
         height: 45px;
-        background: linear-gradient(135deg, var(--accent), #8b5cf6);
+        background: var(--accent);
         border-radius: 10px;
         display: flex;
         align-items: center;
@@ -268,15 +240,15 @@
     }
 
     .material-icon.youtube {
-        background: linear-gradient(135deg, #ff0000, #cc0000);
+        background: #ff0000;
     }
 
     .material-icon.pdf {
-        background: linear-gradient(135deg, #ef4444, #dc2626);
+        background: #ef4444;
     }
 
     .material-icon.book {
-        background: linear-gradient(135deg, var(--gold), #f59e0b);
+        background: var(--gold);
     }
 
     .material-details {
@@ -309,7 +281,6 @@
         font-weight: 600;
         font-size: 0.85rem;
         text-decoration: none;
-        transition: all 0.3s ease;
         display: inline-flex;
         align-items: center;
         gap: 5px;
@@ -318,12 +289,11 @@
 
     .material-link:hover {
         background: #4f46e5;
-        transform: scale(1.05);
         color: white;
     }
 
     .instructor-card {
-        background: linear-gradient(135deg, #f8fafc, white);
+        background: #f8fafc;
         border-radius: 16px;
         padding: 20px;
         border: 2px solid var(--border-subtle);
@@ -331,19 +301,12 @@
         display: flex;
         align-items: center;
         gap: 15px;
-        transition: all 0.3s ease;
-    }
-
-    .instructor-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        border-color: var(--accent);
     }
 
     .instructor-avatar {
         width: 60px;
         height: 60px;
-        background: linear-gradient(135deg, var(--accent), #8b5cf6);
+        background: var(--accent);
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -366,7 +329,7 @@
     }
 
     .grade-display {
-        background: linear-gradient(135deg, #10b981, #059669);
+        background: #10b981;
         color: white;
         border-radius: 16px;
         padding: 20px;
@@ -405,12 +368,10 @@
         color: var(--primary);
         text-decoration: none;
         font-weight: 600;
-        transition: all 0.3s ease;
     }
 
     .back-btn:hover {
         color: var(--accent);
-        transform: translateX(-5px);
     }
 
     .sidebar-card {
@@ -546,14 +507,13 @@
                                 </a>
                             </div>
                             {% endfor %}
-                        </div>
-                        {% endfor %}
-                        <!-- Assignments Section -->
-                        <div class="assignment-section mt-3">
-                            <strong>Assignments</strong>
-                            {% if topic.assignments and topic.assignments|length > 0 %}
+
+                            <!-- Assignments (per subtopic) -->
+                            {% if subtopic.assignments and subtopic.assignments|length > 0 %}
+                            <div class="assignment-section mt-3">
+                                <strong>Assignments</strong>
                                 <ul class="list-group mb-2">
-                                    {% for a in topic.assignments %}
+                                    {% for a in subtopic.assignments %}
                                     {% set submission = student_submissions|selectattr('assignment_id', 'equalto', a.assignment_id)|first %}
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <div>
@@ -581,10 +541,10 @@
                                     </li>
                                     {% endfor %}
                                 </ul>
-                            {% else %}
-                                <div class="text-muted small mb-2">No assignments added yet for this topic.</div>
+                            </div>
                             {% endif %}
                         </div>
+                        {% endfor %}
                     </div>
                     {% endfor %}
                 </div>

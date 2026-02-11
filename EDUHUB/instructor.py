@@ -14,6 +14,7 @@ from .models import (
     ModuleTopic,
     TopicSubtopic,
     SubtopicContent,
+    SubtopicAssignment,
     TopicAssignment,
     DeregistrationRequest,
 )
@@ -305,6 +306,54 @@ def add_subtopic(topic_id):
     return redirect(url_for('instructor.course_detail', course_id=mod.course_id, tab='modules'))
 
 
+# ------------------------------------------------------------
+# SUBTOPIC ASSIGNMENT
+# ------------------------------------------------------------
+@instructor.route('/subtopics/<int:subtopic_id>/assignments/add', methods=['POST'])
+@login_required
+@instructor_required
+def add_subtopic_assignment(subtopic_id):
+    """Instructor adds an assignment for a subtopic."""
+    st = TopicSubtopic.query.get_or_404(subtopic_id)
+    t = ModuleTopic.query.get_or_404(st.topic_id)
+    mod = CourseModule.query.get_or_404(t.module_id)
+
+    if not _is_assigned(mod.course_id):
+        flash("Unauthorized.")
+        return redirect(url_for('instructor.dashboard'))
+
+    title = request.form.get('assignment_title', '').strip()
+    description = request.form.get('assignment_description', '').strip()
+    due_date_str = request.form.get('due_date', '').strip()
+
+    if not title:
+        flash("Assignment title is required.")
+        return redirect(url_for('instructor.course_detail', course_id=mod.course_id, tab='modules'))
+
+    due_date = None
+    if due_date_str:
+        try:
+            due_date = datetime.strptime(due_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            flash("Invalid due date format.")
+            return redirect(url_for('instructor.course_detail', course_id=mod.course_id, tab='modules'))
+
+    try:
+        db.session.add(SubtopicAssignment(
+            subtopic_id=subtopic_id,
+            title=title,
+            description=description or None,
+            due_date=due_date,
+        ))
+        db.session.commit()
+        flash("Assignment added.")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error adding assignment: {e}")
+
+    return redirect(url_for('instructor.course_detail', course_id=mod.course_id, tab='modules'))
+
+
 @instructor.route('/subtopics/<int:subtopic_id>/delete', methods=['POST'])
 @login_required
 @instructor_required
@@ -410,7 +459,7 @@ def add_content(subtopic_id):
 @login_required
 @instructor_required
 def delete_content(content_id):
-    c = SubtopicContent.query.get_or_404(content_.subtopic_id)
+    c = SubtopicContent.query.get_or_404(content_id)
     st = TopicSubtopic.query.get_or_404(c.subtopic_id)
     t = ModuleTopic.query.get_or_404(st.topic_id)
     mod = CourseModule.query.get_or_404(t.module_id)

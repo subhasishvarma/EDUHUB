@@ -18,7 +18,7 @@
     }
 
     .performance-header {
-        background: linear-gradient(135deg, var(--perf-a), var(--perf-b));
+        background: var(--accent);
         color: white;
         padding: 60px 0 40px;
         margin-bottom: 40px;
@@ -73,18 +73,11 @@
         border: 2px solid var(--perf-border);
         box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
         margin-bottom: 30px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .instructor-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 50px var(--perf-shadow);
-        border-color: rgba(99,102,241,0.35);
     }
 
     /* ✅ changed to match top theme */
     .instructor-header {
-        background: linear-gradient(135deg, var(--perf-a), var(--perf-b));
+        background: var(--accent);
         padding: 30px;
         color: white;
         display: flex;
@@ -123,7 +116,7 @@
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 20px;
         padding: 30px;
-        background: linear-gradient(180deg, rgba(99,102,241,0.06), #ffffff);
+        background: #ffffff;
         border-bottom: 2px solid var(--perf-border);
     }
 
@@ -133,13 +126,6 @@
         background: white;
         border-radius: 16px;
         border: 2px solid var(--perf-border);
-        transition: all 0.3s ease;
-    }
-
-    .stat-item:hover {
-        transform: translateY(-3px);
-        border-color: rgba(99,102,241,0.35);
-        box-shadow: 0 10px 30px rgba(99,102,241,0.15);
     }
 
     .stat-icon {
@@ -148,14 +134,10 @@
         margin: 0 auto 12px;
     }
 
-    /* ✅ text gradient to match top theme */
     .stat-value {
         font-size: 2rem;
         font-weight: 900;
-        background: linear-gradient(135deg, var(--perf-a), var(--perf-b));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: var(--accent);
         margin-bottom: 6px;
     }
 
@@ -195,7 +177,7 @@
 
     /* ✅ table head gradient to match top theme */
     .course-table thead th {
-        background: linear-gradient(135deg, var(--perf-a), var(--perf-b));
+        background: var(--accent);
         color: white;
         padding: 16px;
         font-weight: 700;
@@ -214,12 +196,10 @@
     }
 
     .course-table tbody tr {
-        transition: all 0.3s ease;
     }
 
     .course-table tbody tr:hover {
         background: rgba(99,102,241,0.06);
-        transform: scale(1.01);
     }
 
     .course-table tbody td {
@@ -269,7 +249,7 @@
     .badge-average,
     .badge-attention,
     .badge-not-graded {
-        background: linear-gradient(135deg, var(--perf-a), var(--perf-b));
+        background: var(--accent);
         color: white;
     }
 

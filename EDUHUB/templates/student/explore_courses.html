@@ -7,7 +7,7 @@
 {% block extra_css %}
 <style>
     .explore-header {
-        background: linear-gradient(135deg, var(--accent), #8b5cf6);
+        background: var(--accent);
         color: white;
         padding: 100px 0 40px;
         margin: 0 0 40px;
@@ -33,19 +33,12 @@
         border-radius: 20px;
         overflow: hidden;
         border: 2px solid var(--border-subtle);
-        transition: all 0.3s ease;
         display: flex;
         flex-direction: column;
     }
 
-    .explore-course-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 50px rgba(99, 102, 241, 0.2);
-        border-color: var(--accent);
-    }
-
     .explore-course-header {
-        background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+        background: #f8fafc;
         padding: 25px;
         border-bottom: 2px solid var(--border-subtle);
         position: relative;
@@ -109,19 +102,16 @@
 
     .enroll-btn {
         width: 100%;
-        background: linear-gradient(135deg, var(--accent), #4f46e5);
+        background: var(--accent);
         border: none;
         color: white;
         padding: 12px 20px;
         border-radius: 50px;
         font-weight: 700;
-        transition: all 0.3s ease;
         cursor: pointer;
     }
 
     .enroll-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px var(--accent-glow);
         color: white;
     }
 
@@ -164,15 +154,18 @@
         color: var(--text-muted);
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.3s ease;
         white-space: nowrap;
         min-width: fit-content;
         flex-shrink: 0;
     }
 
-    .filter-btn:hover, .filter-btn.active {
+    .filter-btn.active {
         background: var(--accent);
         color: white;
+        border-color: var(--accent);
+    }
+
+    .filter-btn:hover {
         border-color: var(--accent);
     }
 
@@ -184,12 +177,10 @@
         color: var(--primary);
         text-decoration: none;
         font-weight: 600;
-        transition: all 0.3s ease;
     }
 
     .back-btn:hover {
         color: var(--accent);
-        transform: translateX(-5px);
     }
 
     @media (max-width: 768px) {

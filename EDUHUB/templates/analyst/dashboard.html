@@ -7,7 +7,7 @@
 {% block extra_css %}
 <style>
   .dash-header {
-    background: linear-gradient(135deg, var(--accent), #4f46e5);
+    background: var(--accent);
     color: white;
     padding: 60px 0 40px;
     margin-bottom: 35px;
@@ -75,13 +75,7 @@
     text-decoration: none;
     color: inherit;
     box-shadow: 0 12px 34px rgba(0,0,0,0.07);
-    transition: transform .15s ease, box-shadow .15s ease;
   }
-  .quick-link:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 22px 55px rgba(0,0,0,0.12);
-  }
-
   .quick-left { display: flex; align-items: center; gap: 16px; }  /* ✅ more spacing */
   .quick-badge {
     width: 56px; height: 56px;          /* ✅ bigger icon block */
@@ -130,7 +124,7 @@
             <div class="stat-label">Students</div>
             <p class="stat-value">{{ stats.students }}</p>
           </div>
-          <div class="stat-icon" style="background: linear-gradient(135deg,#10b981,#059669);">
+          <div class="stat-icon" style="background: #10b981;">
             <i class="fas fa-user-graduate"></i>
           </div>
         </div>
@@ -145,7 +139,7 @@
             <div class="stat-label">Instructors</div>
             <p class="stat-value">{{ stats.instructors }}</p>
           </div>
-          <div class="stat-icon" style="background: linear-gradient(135deg,#6366f1,#8b5cf6);">
+          <div class="stat-icon" style="background: var(--accent);">
             <i class="fas fa-chalkboard-teacher"></i>
           </div>
         </div>
@@ -160,7 +154,7 @@
             <div class="stat-label">Courses</div>
             <p class="stat-value">{{ stats.courses }}</p>
           </div>
-          <div class="stat-icon" style="background: linear-gradient(135deg,#f59e0b,#f97316);">
+          <div class="stat-icon" style="background: #f59e0b;">
             <i class="fas fa-book-open"></i>
           </div>
         </div>
@@ -175,7 +169,7 @@
             <div class="stat-label">Enrollments</div>
             <p class="stat-value">{{ stats.enrollments }}</p>
           </div>
-          <div class="stat-icon" style="background: linear-gradient(135deg,#ef4444,#f43f5e);">
+          <div class="stat-icon" style="background: #ef4444;">
             <i class="fas fa-clipboard-check"></i>
           </div>
         </div>
@@ -193,7 +187,7 @@
       <div class="col-md-6">
         <a class="quick-link" href="{{ url_for('analyst.student_performance') }}">
           <div class="quick-left">
-            <div class="quick-badge" style="background: linear-gradient(135deg,#10b981,#059669);">
+            <div class="quick-badge" style="background: #10b981;">
               <i class="fas fa-user-graduate"></i>
             </div>
             <div>
@@ -208,7 +202,7 @@
       <div class="col-md-6">
         <a class="quick-link" href="{{ url_for('analyst.instructor_performance') }}">
           <div class="quick-left">
-            <div class="quick-badge" style="background: linear-gradient(135deg,#6366f1,#8b5cf6);">
+            <div class="quick-badge" style="background: var(--accent);">
               <i class="fas fa-chalkboard-teacher"></i>
             </div>
             <div>
@@ -223,7 +217,7 @@
       <div class="col-md-6">
         <a class="quick-link" href="{{ url_for('analyst.course_analysis') }}">
           <div class="quick-left">
-            <div class="quick-badge" style="background: linear-gradient(135deg,#f59e0b,#f97316);">
+            <div class="quick-badge" style="background: #f59e0b;">
               <i class="fas fa-book"></i>
             </div>
             <div>
@@ -238,7 +232,7 @@
       <div class="col-md-6">
         <a class="quick-link" href="{{ url_for('analyst.university_performance') }}">
           <div class="quick-left">
-            <div class="quick-badge" style="background: linear-gradient(135deg,#ef4444,#f43f5e);">
+            <div class="quick-badge" style="background: #ef4444;">
               <i class="fas fa-university"></i>
             </div>
             <div>
